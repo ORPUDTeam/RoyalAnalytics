@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - include:
+      file: 0001_create_users.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 0002_create_user_cache.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 0003_create_rating_changes.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 0004_create_user_decks.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 0005_create_generated_decks.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 0006_create_cards.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 0007_create_tournaments_cache.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 0008_create_tournament_registrations.sql
+      relativeToChangelogFile: true
