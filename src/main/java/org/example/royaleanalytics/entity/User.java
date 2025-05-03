@@ -1,13 +1,13 @@
 package org.example.royaleanalytics.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -18,8 +18,18 @@ import lombok.experimental.Accessors;
 public class User {
 
     @Id
-    @GeneratedValue
-    private Long id;
+    @Column(nullable = false)
+    public String player_tag;
+
+    @Column(unique = true, nullable = false)
+    public String username;
+
+    @Column(nullable = false)
+    public String password_hash;
+
+    @Column(insertable = false)
+    public LocalDateTime registered_at;
+
 
     //TODO
 
