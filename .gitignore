@@ -21,6 +21,7 @@ target/
 # Исключить настройки IDE
 .idea/
 .mvn/
+application.properties
 
 target/
 bin/
