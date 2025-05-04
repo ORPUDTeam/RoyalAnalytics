@@ -9,7 +9,7 @@ import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 
 @Mapper(componentModel = SPRING)
 public interface UserMapper {
-    @Mapping(target = "player_tag", source = "playerTag")
+    @Mapping(target = "playerTag", source = "playerTag")
     @Mapping(target = "password_hash", ignore = true)
     User toUser(RegistrationFormDTO registrationFormDTO);
 }
