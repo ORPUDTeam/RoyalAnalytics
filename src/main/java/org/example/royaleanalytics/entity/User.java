@@ -19,7 +19,7 @@ public class User {
 
     @Id
     @Column(nullable = false)
-    public String player_tag;
+    public String playerTag;
 
     @Column(unique = true, nullable = false)
     public String username;
@@ -30,7 +30,7 @@ public class User {
     @Column(insertable = false)
     public LocalDateTime registered_at;
 
-
-    //TODO
+    @Column(insertable = false)
+    public String role;
 
 }
