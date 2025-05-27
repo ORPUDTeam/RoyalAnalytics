@@ -1,24 +1,30 @@
 import joblib
 from sklearn.preprocessing import OneHotEncoder
-
-# Импортируем ColumnTransformer так же, как в обучении, чтобы знать имена фич
 from sklearn.compose import ColumnTransformer
+from ml.preprocess.prepare_data import FEATURE_COLS, MODEL_PATH
 
-# Чтобы получить feature names, нам нужно скопировать препроцессор
-import pickle
 
-def top_cards(n=10):
-    pipe = joblib.load('models/multitask_model.joblib')
-    # достаём обученный one-hot encoder
+def top_cards(n: int = 10):
+    # загружаем Pipeline
+    pipe = joblib.load(MODEL_PATH)
     preproc: ColumnTransformer = pipe.named_steps['pre']
-    ohe: OneHotEncoder = preproc.named_transformers_['ohe']
-    # имена карт
-    card_names = ohe.get_feature_names_out([f'card{i}' for i in range(1,9)])
-    # feature_importances_ у каждого рандомфора
+    ohe: OneHotEncoder = preproc.named_transformers_['cards_ohe']
+
+    # имена one-hot фич: cardX_<name>
+    feat_names = ohe.get_feature_names_out(FEATURE_COLS)
+    # важности базового регрессора
     importances = pipe.named_steps['reg'].estimators_[0].feature_importances_
-    # свёртываем на карты (они идут блоком по 8*уникальных карт)
-    df_imp = sorted(zip(card_names, importances), key=lambda x: x[1], reverse=True)
-    return df_imp[:n]
+
+    # агрегируем по названию карты
+    card_imp = {}
+    for fn, imp in zip(feat_names, importances):
+        # название карты после '_' в feature name
+        name = fn.split('_', 1)[1]
+        card_imp[name] = card_imp.get(name, 0) + imp
+
+    # топ-N карт
+    return sorted(card_imp.items(), key=lambda x: x[1], reverse=True)[:n]
+
 
 if __name__ == "__main__":
     print(top_cards(10))
