@@ -8,6 +8,7 @@ CREATE TABLE users
     password_hash VARCHAR            NOT NULL,
     player_tag    VARCHAR(20),
     registered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    role VARCHAR(50) NOT NULL DEFAULT 'USER',
 
     CONSTRAINT users_tag_pk PRIMARY KEY (player_tag)
 
