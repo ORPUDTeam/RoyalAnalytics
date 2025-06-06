@@ -31,7 +31,7 @@ public class UserDeck {
     @Column(name = "status")
     private boolean status;
 
-    @Type(IntArrayType.class)
+
     @Column(
             name = "cards",
             columnDefinition = "integer[]"

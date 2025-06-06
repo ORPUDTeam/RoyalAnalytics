@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Check(constraints = "game_mod IN ('Single', 'Duel', 'Clan')")
-public class TournamentCache {
+public class Tournament {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,7 +30,7 @@ public class TournamentCache {
     private String description;
 
     @Column(columnDefinition = "interval")
-    private Duration interval;
+    private Duration duration;
 
     @Column(name = "game_mod", length = 20)
     private String gameMod;

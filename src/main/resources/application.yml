@@ -5,8 +5,8 @@ spring:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/royale_analytics
     type: com.zaxxer.hikari.HikariDataSource
-    username: username
-    password: password
+    username: postgres
+    password: postgres
     hikari:
       pool-name: HikariCP
       minimum-idle: 5
