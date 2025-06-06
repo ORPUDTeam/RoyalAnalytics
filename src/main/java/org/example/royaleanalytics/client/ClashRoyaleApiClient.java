@@ -6,7 +6,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.example.royaleanalytics.dto.api.Card;
+import org.example.royaleanalytics.dto.api.CardApi;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
@@ -19,7 +19,7 @@ public interface ClashRoyaleApiClient {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             headers = {"Authorization=Bearer ${api.token}"}
     )
-    ResponseEntity<List<Card>> getCards();
+    ResponseEntity<List<CardApi>> getCards();
 
     @GetMapping(
             value = "${api.users-path}" + "/{tag}",
