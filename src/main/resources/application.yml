@@ -23,3 +23,8 @@ spring:
     change-log: classpath:/db/changelog/db.changelog-master.yaml
     enabled: true
     default-schema: public
+api:
+  url: https://api.clashroyale.com/v1
+  cards-path: /cards
+  users-path: /players
+  token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6IjExNmVjMDY4LWNiZjktNDI5Mi04MzY3LTUxZTk0OWM0OWMyZSIsImlhdCI6MTc0OTE1NTcyNSwic3ViIjoiZGV2ZWxvcGVyLzg4OTZhZTFiLWI4Y2EtYjAzZi0yYTg5LTk5NmExZjQ4Yjk5MSIsInNjb3BlcyI6WyJyb3lhbGUiXSwibGltaXRzIjpbeyJ0aWVyIjoiZGV2ZWxvcGVyL3NpbHZlciIsInR5cGUiOiJ0aHJvdHRsaW5nIn0seyJjaWRycyI6WyIxNzguMjA3LjE3OS4yNDQiXSwidHlwZSI6ImNsaWVudCJ9XX0.3oPfFLeNJURnInbNGMJDvInxZIxdrYZ61Dnfow4C1JZSdqaEq-ijbUF6-enMCJwgi5o8tZBRlRevyacfXvozgg

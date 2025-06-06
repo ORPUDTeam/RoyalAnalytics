@@ -11,7 +11,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "tournaments_cache")
+@Table(name = "tournaments")
 @Data
 @Accessors(chain = true)
 @NoArgsConstructor
