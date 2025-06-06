@@ -22,7 +22,7 @@ public class TournamentRegistration {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "tournament_id", nullable = false)
-    private TournamentCache tournament;
+    private Tournament tournament;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "player_tag", nullable = false)

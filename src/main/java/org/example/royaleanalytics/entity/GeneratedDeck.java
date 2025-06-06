@@ -28,7 +28,6 @@ public class GeneratedDeck {
 
     private Boolean status;
 
-    @Type(IntArrayType.class)
     @Column(
             name = "cards",
             columnDefinition = "integer[]"

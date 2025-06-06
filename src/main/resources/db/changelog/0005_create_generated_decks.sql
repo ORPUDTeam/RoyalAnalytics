@@ -9,6 +9,7 @@ CREATE TABLE generated_decks
     description TEXT,
     cards       INTEGER[]   NOT NULL,
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status      Boolean,
 
     CONSTRAINT generated_decks_id_pk PRIMARY KEY (id),
     CONSTRAINT generated_decks_tag_fk FOREIGN KEY (player_tag) REFERENCES users (player_tag) ON DELETE CASCADE
