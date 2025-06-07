@@ -1,9 +1,9 @@
 import joblib
-from ml.preprocess.prepare_data import load_data, load_full_data, MODEL_PATH
+from src.preprocess.prepare_data import load_data, load_full_data, MODEL_PATH
 
 
-def top_popular(n: int = 5):
-    X, y = load_data()
+def top_popular(n: int = 5, trophies: int = 9000):
+    X, y = load_data(trophies)
 
     model = joblib.load(MODEL_PATH)
 

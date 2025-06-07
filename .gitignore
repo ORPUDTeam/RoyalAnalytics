@@ -43,4 +43,4 @@ build/
 /venv/
 
 ### ML ###
-src/main/ml/models
+ml-service/src/models
