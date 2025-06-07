@@ -1,7 +1,7 @@
 import joblib
 import pandas as pd
 
-from ml.preprocess.prepare_data import load_full_data, load_cards, FEATURE_COLS, MODEL_PATH
+from src.preprocess.prepare_data import load_full_data, load_cards, FEATURE_COLS, MODEL_PATH
 
 model = joblib.load(MODEL_PATH)
 matches_df = load_full_data()

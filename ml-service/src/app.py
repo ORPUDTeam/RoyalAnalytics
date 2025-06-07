@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import joblib
-from ml.predict.recommend_decks import recommend_decks
+from src.predict.recommend_decks import recommend_decks
 
 class Req(BaseModel):
     trophies: int

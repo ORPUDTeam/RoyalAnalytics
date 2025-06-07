@@ -8,7 +8,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import r2_score, mean_squared_error
 
-from ml.preprocess.prepare_data import load_data, load_full_data, FEATURE_COLS, MODEL_PATH
+from src.preprocess.prepare_data import load_data, load_full_data, FEATURE_COLS, MODEL_PATH
 
 
 def train_and_save():

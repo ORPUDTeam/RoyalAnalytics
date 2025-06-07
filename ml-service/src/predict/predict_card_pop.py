@@ -1,7 +1,7 @@
 import joblib
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
-from ml.preprocess.prepare_data import FEATURE_COLS, MODEL_PATH, load_full_data
+from src.preprocess.prepare_data import FEATURE_COLS, MODEL_PATH, load_full_data
 
 
 def top_cards(n: int = 10):
