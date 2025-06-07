@@ -23,13 +23,8 @@ public class UserCache {
     @Column(name = "player_tag", nullable = false, insertable = false)
     private String player_tag;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @MapsId
-    @JoinColumn(name = "player_tag")
-    private User user;
-
     @Column(name = "trophies")
-    private int trophies;
+    private Integer trophies;
 
     @Column(name = "current_deck_id")
     private int currentDeckId;

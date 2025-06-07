@@ -33,4 +33,8 @@ public class User {
     @Column(insertable = false)
     public String role;
 
+    @OneToOne(fetch = FetchType.EAGER)
+    @MapsId
+    @JoinColumn(name = "playerTag")
+    private UserCache userCache;
 }
