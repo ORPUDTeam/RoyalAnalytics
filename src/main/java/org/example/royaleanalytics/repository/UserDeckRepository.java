@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserDeckRepository extends JpaRepository<UserDeck, Integer> {
+
+
 }

@@ -15,6 +15,8 @@ import java.time.LocalDateTime;
         imports = {LocalDateTime.class},
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface CardMapper {
+
+    Card updateCard(Card oldCart, CardApi cardApi);
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "updated_at", expression = "java(LocalDateTime.now())")
     Card mapToCard(CardApi cardApi);

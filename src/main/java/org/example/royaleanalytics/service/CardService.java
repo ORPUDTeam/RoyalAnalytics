@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,6 +28,14 @@ public class CardService {
 
     @Transactional
     public void processingCardsFromApi(List<CardApi> cardApis){
+        cardApis.forEach(cardApi -> {
+            Optional<Card> oldCard = cardRepository.findByName(cardApi.getName());
+            if (oldCard.isPresent()){
+                cardRepository.save(cardMapper.updateCard(oldCard.get(), cardApi));
+            } else{
+                cardRepository.save(cardMapper.mapToCard(cardApi));
+            }
+        });
         List<Card> cards = cardApis.stream()
                 .map(cardMapper::mapToCard)
                 .toList();
