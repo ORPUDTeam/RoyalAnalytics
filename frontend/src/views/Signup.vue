@@ -1,83 +1,145 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 to-blue-700">
-    <div class="w-full max-w-md p-8 bg-white rounded-2xl shadow-xl">
-      <h2 class="text-2xl font-bold mb-6 text-center">Регистрация</h2>
-      <form @submit.prevent="register">
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700">Логин</label>
-          <input v-model="form.username" type="text" required class="mt-1 w-full rounded border px-3 py-2 shadow" />
+  <div class="auth-page">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-6">
+          <card class="mt-5">
+            <h2 slot="header" class="text-center">Регистрация</h2>
+
+            <validation-observer v-slot="{ handleSubmit }">
+              <form @submit.prevent="handleSubmit(register)">
+                <!-- Логин -->
+                <validation-provider name="Логин" rules="required|min:3" v-slot="{ errors }">
+                  <base-input
+                      label="Логин"
+                      v-model="form.username"
+                      :error="errors[0]"
+                      placeholder="Введите ваш логин">
+                  </base-input>
+                </validation-provider>
+
+                <!-- Email -->
+                <validation-provider name="Email" rules="required|email" v-slot="{ errors }">
+                  <base-input
+                      label="Email"
+                      type="email"
+                      v-model="form.email"
+                      :error="errors[0]"
+                      placeholder="example@mail.com">
+                  </base-input>
+                </validation-provider>
+
+                <!-- Player Tag -->
+                <validation-provider name="Player Tag" rules="required|min:5" v-slot="{ errors }">
+                  <base-input
+                      label="Player Tag"
+                      v-model="form.player_tag"
+                      :error="errors[0]"
+                      placeholder="#ABCDEF">
+                    <template #addon-left>
+                      <span class="input-group-text">#</span>
+                    </template>
+                  </base-input>
+                </validation-provider>
+
+                <!-- Пароль -->
+                <validation-provider name="Пароль" rules="required|min:6" v-slot="{ errors }">
+                  <base-input
+                      label="Пароль"
+                      type="password"
+                      v-model="form.password"
+                      :error="errors[0]"
+                      placeholder="Не менее 6 символов">
+                  </base-input>
+                </validation-provider>
+
+                <!-- Подтверждение пароля -->
+                <validation-provider name="Подтверждение" rules="required|confirmed:Пароль" v-slot="{ errors }">
+                  <base-input
+                      label="Подтвердите пароль"
+                      type="password"
+                      v-model="form.confirm_password"
+                      :error="errors[0]"
+                      placeholder="Повторите пароль">
+                  </base-input>
+                </validation-provider>
+
+                <!-- Кнопка отправки -->
+                <div class="text-center mt-4">
+                  <base-button type="primary" native-type="submit" :loading="loading">
+                    Зарегистрироваться
+                  </base-button>
+                </div>
+              </form>
+            </validation-observer>
+
+            <div class="text-center mt-3">
+              <router-link to="/login">Уже есть аккаунт? Войти</router-link>
+            </div>
+          </card>
         </div>
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700">Email</label>
-          <input v-model="form.email" type="email" required class="mt-1 w-full rounded border px-3 py-2 shadow" />
-        </div>
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700">Пароль</label>
-          <input v-model="form.password" type="password" required class="mt-1 w-full rounded border px-3 py-2 shadow" />
-        </div>
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700">Повторите пароль</label>
-          <input v-model="form.confirmPassword" type="password" required class="mt-1 w-full rounded border px-3 py-2 shadow" />
-        </div>
-        <div class="mb-6">
-          <label class="block text-sm font-medium text-gray-700">Player Tag</label>
-          <input v-model="form.playerTag" type="text" required class="mt-1 w-full rounded border px-3 py-2 shadow" />
-        </div>
-        <div v-if="error" class="text-red-600 mb-4 text-sm text-center">
-          {{ error }}
-        </div>
-        <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Зарегистрироваться</button>
-      </form>
-      <p class="text-sm text-center mt-4">
-        Уже есть аккаунт? <router-link to="/login" class="text-blue-600 hover:underline">Войти</router-link>
-      </p>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import axios from "axios";
-
 export default {
-  name: "Signup",
   data() {
     return {
       form: {
-        username: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-        playerTag: "",
+        username: '',
+        email: '',
+        player_tag: '',
+        password: '',
+        confirm_password: ''
       },
-      error: "",
-    };
+      loading: false
+    }
   },
   methods: {
     async register() {
-      if (this.form.password !== this.form.confirmPassword) {
-        this.error = "Пароли не совпадают.";
-        return;
-      }
       try {
-        const response = await axios.post("/api/register", {
-          username: this.form.username,
+        this.loading = true;
+        const response = await this.$axios.post('/registration', {
+          name: this.form.username,
           email: this.form.email,
+          player_tag: this.form.player_tag,
           password: this.form.password,
-          player_tag: this.form.playerTag,
+          confirm_password: this.form.confirm_password
         });
-        if (response.status === 201 || response.status === 200) {
-          this.$router.push("/login");
+
+        if (response.status === 302) {
+          this.$router.push('/login');
+          this.$notify({
+            type: 'success',
+            message: 'Регистрация прошла успешно!'
+          });
         }
-      } catch (err) {
-        this.error = err.response?.data?.detail || "Ошибка регистрации.";
+      } catch (error) {
+        let message = 'Ошибка регистрации';
+        if (error.response && error.response.status === 409) {
+          message = 'Пользователь с таким email или player tag уже существует';
+        }
+        this.$notify({
+          type: 'danger',
+          message: message
+        });
+      } finally {
+        this.loading = false;
       }
-    },
-  },
-};
+    }
+  }
+}
 </script>
 
 <style scoped>
-input {
-  border: 1px solid #d1d5db;
+.auth-page {
+  min-height: 100vh;
+  background: #f8f9fe;
+  padding-top: 2rem;
+}
+.input-group-text {
+  background-color: #f8f9fe;
 }
 </style>

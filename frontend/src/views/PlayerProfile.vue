@@ -1,81 +1,130 @@
 <template>
-  <div class="main-content">
-    <Sidebar />
-    <main>
-      <Navbar />
-      <section class="py-6 px-4">
-        <div v-if="loading" class="text-center">Загрузка...</div>
-        <div v-else-if="error" class="text-red-600">{{ error }}</div>
-        <div v-else>
-          <h2 class="text-2xl font-semibold mb-4">{{ player.username || "Неизвестный игрок" }}</h2>
-          <p class="text-gray-600 mb-2">Player Tag: {{ playerTag }}</p>
-          <p class="mb-2">Дата регистрации: {{ player.registered_at || "N/A" }}</p>
-          <p class="mb-2">Кубки: {{ player.trophies }}</p>
+  <div class="player-profile">
+    <template v-if="loading">
+      <loader />
+    </template>
 
-          <div class="mb-4">
-            <h3 class="text-xl font-semibold mb-2">Колода</h3>
-            <div class="grid grid-cols-4 gap-2">
-              <div v-for="card in player.deck" :key="card.id" class="bg-gray-100 p-2 rounded shadow">
-                <p>{{ card.name }}</p>
-                <small>{{ card.elixir }} эликсир</small>
-              </div>
-            </div>
+    <template v-else>
+      <!-- 1. Заголовок -->
+      <div class="row align-items-center mb-4">
+        <div class="col-md-8">
+          <h1>{{ player.name }}</h1>
+          <badge v-if="player.clan" type="default">
+            <i class="ni ni-square-pin"></i> {{ player.clan.name }}
+          </badge>
+        </div>
+        <div class="col-md-4 text-right">
+          <base-button v-if="isRegistered" size="sm" @click="addToCompare">
+            <i class="ni ni-chart-bar-32"></i> Сравнить
+          </base-button>
+        </div>
+      </div>
+
+      <!-- 2. Основная информация -->
+      <card>
+        <div class="row">
+          <div class="col-md-6">
+            <h4>Основное</h4>
+            <table class="table table-sm">
+              <tr>
+                <td><strong>Кубки:</strong></td>
+                <td>{{ player.trophies }}</td>
+              </tr>
+              <tr v-if="isRegistered">
+                <td><strong>Уровень:</strong></td>
+                <td>{{ player.level }}</td>
+              </tr>
+              <tr v-if="isRegistered">
+                <td><strong>Дата регистрации:</strong></td>
+                <td>{{ formatDate(player.registered_at) }}</td>
+              </tr>
+            </table>
           </div>
-
-          <div class="mb-4">
-            <h3 class="text-xl font-semibold mb-2">Награды</h3>
-            <ul>
-              <li v-for="(reward, index) in player.rewards" :key="index" class="list-disc ml-6">{{ reward }}</li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 class="text-xl font-semibold mb-2">История рейтинга</h3>
-            <LineChart :data="ratingHistory" />
+          <div class="col-md-6">
+            <h4>Статистика</h4>
+            <table class="table table-sm">
+              <tr>
+                <td><strong>Побед:</strong></td>
+                <td>{{ player.wins }}</td>
+              </tr>
+              <tr>
+                <td><strong>Лучший сезон:</strong></td>
+                <td>{{ player.best_season }}</td>
+              </tr>
+            </table>
           </div>
         </div>
-      </section>
-    </main>
+      </card>
+
+      <!-- 3. Колода (разный формат для зарегистрированных) -->
+      <card class="mt-4">
+        <h3 slot="header">Текущая колода</h3>
+        <template v-if="isRegistered">
+          <deck-preview :cards="player.current_deck" />
+          <div class="mt-3 text-muted">
+            <small>Обновлено: {{ formatDateTime(player.cache_updated_at) }}</small>
+          </div>
+        </template>
+        <template v-else>
+          <div class="alert alert-info">
+            Данные обновляются в реальном времени (без кеширования)
+          </div>
+          <deck-preview :cards="player.current_deck" :show-elixir="true" />
+        </template>
+      </card>
+
+      <!-- 4. История трофеев (только для зарегистрированных) -->
+      <card v-if="isRegistered" class="mt-4">
+        <h3 slot="header">История трофеев</h3>
+        <trophy-chart :data="player.rating_history" />
+      </card>
+    </template>
   </div>
 </template>
 
 <script>
-import axios from "axios";
-import Sidebar from "@/views/components/Sidebar.vue";
-import Navbar from "@/views/components/Navbar.vue";
-import LineChart from "@/views/components/LineChart.vue";
+import { fetchPlayerProfile } from '@/api/players';
+import { checkIfRegistered } from '@/api/auth';
 
 export default {
-  components: {
-    Sidebar,
-    Navbar,
-    LineChart,
-  },
   data() {
     return {
-      player: {},
-      playerTag: this.$route.params.player_tag,
-      ratingHistory: [],
+      player: null,
       loading: true,
-      error: null,
-    };
-  },
-  async created() {
-    try {
-      const response = await axios.get(`/api/players/${this.playerTag}`);
-      this.player = response.data.player;
-      this.ratingHistory = response.data.rating_history || [];
-    } catch (e) {
-      try {
-        const fallback = await axios.get(`/api/players/${this.playerTag}/external`);
-        this.player = fallback.data.player;
-        this.ratingHistory = [];
-      } catch (err) {
-        this.error = "Игрок не найден";
-      }
-    } finally {
-      this.loading = false;
+      isRegistered: false
     }
   },
-};
+  async mounted() {
+    await this.loadPlayerData(this.$route.params.tag);
+  },
+  methods: {
+    async loadPlayerData(tag) {
+      try {
+        this.loading = true;
+
+        const [profile, registrationStatus] = await Promise.all([
+          fetchPlayerProfile(tag),
+          checkIfRegistered(tag)
+        ]);
+
+        this.player = profile;
+        this.isRegistered = registrationStatus.is_registered;
+
+      } catch (error) {
+        console.error('Ошибка загрузки:', error);
+      } finally {
+        this.loading = false;
+      }
+    },
+    formatDate(date) {
+      return new Date(date).toLocaleDateString('ru-RU');
+    },
+    formatDateTime(datetime) {
+      return new Date(datetime).toLocaleString('ru-RU');
+    },
+    addToCompare() {
+      // Логика сравнения игроков
+    }
+  }
+}
 </script>

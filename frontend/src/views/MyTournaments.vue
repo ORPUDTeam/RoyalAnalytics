@@ -1,55 +1,71 @@
 <template>
-  <div>
-    <Navbar />
-    <Sidebar />
-    <div class="p-6 ml-64">
-      <h1 class="text-2xl font-bold mb-4">Мои турниры</h1>
+  <div class="my-tournaments">
+    <h1 class="mb-4">Мои турниры</h1>
 
-      <div v-if="loading" class="text-gray-600">Загрузка...</div>
-      <div v-else-if="tournaments.length === 0" class="text-gray-500">Вы не зарегистрированы ни на один турнир</div>
-
-      <div class="space-y-4">
-        <div
-            v-for="tournament in tournaments"
-            :key="tournament.id"
-            class="p-4 border rounded bg-white shadow"
-        >
-          <h2 class="text-xl font-semibold">{{ tournament.name }}</h2>
-          <p class="text-sm text-gray-600">Начало: {{ formatTime(tournament.start_time) }}</p>
-
-          <div class="text-sm mt-2 text-gray-700">
-            {{ tournament.info.description || "Описание отсутствует" }}
+    <div class="row">
+      <div class="col-md-6 mb-4" v-for="tournament in registeredTournaments" :key="tournament.id">
+        <card>
+          <div class="row align-items-center">
+            <div class="col">
+              <h4>{{ tournament.name }}</h4>
+              <p class="mb-0">
+                <small>Начало: {{ formatDate(tournament.start_time) }}</small>
+              </p>
+            </div>
+            <div class="col-auto">
+              <base-button
+                  @click="$router.push(`/tournaments/${tournament.id}`)"
+                  size="sm">
+                Подробнее
+              </base-button>
+            </div>
           </div>
-        </div>
+          <div class="mt-3">
+            <tournament-progress
+                :current="tournament.participants.length"
+                :max="tournament.max_capacity" />
+          </div>
+        </card>
+      </div>
+
+      <div v-if="registeredTournaments.length === 0" class="col-12">
+        <card class="text-center py-5">
+          <i class="ni ni-trophy text-muted" style="font-size: 3rem"></i>
+          <h3 class="mt-3">Вы не зарегистрированы ни на один турнир</h3>
+          <base-button @click="$router.push('/tournaments')" type="primary" class="mt-3">
+            Найти турниры
+          </base-button>
+        </card>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-
-import axios from "axios";
-import Navbar from "@/views/components/Navbar.vue";
-import Sidebar from "@/views/components/Sidebar.vue";
+import { fetchRegisteredTournaments } from '@/api/tournaments';
+import TournamentProgress from '@/components/Tournaments/Progress';
 
 export default {
-  components: {Sidebar, Navbar},
+  components: { TournamentProgress },
   data() {
     return {
-      tournaments: [],
-      loading: true,
-    };
+      registeredTournaments: []
+    }
   },
-  mounted() {
-    axios.get("/api/my-tournaments").then((res) => {
-      this.tournaments = res.data;
-      this.loading = false;
-    });
+  async mounted() {
+    await this.loadRegisteredTournaments();
   },
   methods: {
-    formatTime(timestamp) {
-      return new Date(timestamp).toLocaleString("ru-RU");
+    async loadRegisteredTournaments() {
+      try {
+        this.registeredTournaments = await fetchRegisteredTournaments();
+      } catch (error) {
+        console.error('Ошибка загрузки турниров:', error);
+      }
     },
-  },
-};
+    formatDate(date) {
+      return new Date(date).toLocaleDateString('ru-RU');
+    }
+  }
+}
 </script>

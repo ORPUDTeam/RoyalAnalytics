@@ -1,87 +1,157 @@
 <template>
-  <div class="py-4 px-6">
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-6">
-      <CardStat title="Кубки" :value="userCache.trophies" icon="trophy" />
-      <CardStat title="Наград получено" :value="userCache.rewards.length" icon="gift" />
-      <CardStat title="Колод создано" :value="deckStats.totalDecks" icon="layers" />
-      <CardStat title="Турниров пройдено" :value="tournamentStats.total" icon="flag" />
+  <div class="dashboard">
+    <!-- 1. Основные метрики из API -->
+    <div class="row">
+      <div class="col-xl-4">
+        <stats-card title="Текущие кубки" :value="profile.trophies" icon="ni ni-trophy">
+          <template #footer>
+            <trend-indicator :value="ratingTrend" />
+          </template>
+        </stats-card>
+      </div>
+      <div class="col-xl-4">
+        <stats-card title="Награды" :value="profile.rewards.length" icon="ni ni-medal-85">
+          <template #footer>
+            <router-link to="/profile">Все награды</router-link>
+          </template>
+        </stats-card>
+      </div>
+      <div class="col-xl-4">
+        <stats-card title="Активность" :value="mlData.activity_level" icon="ni ni-watch-time">
+          <template #footer>
+            <span>{{ mlData.battle_count }} боев</span>
+          </template>
+        </stats-card>
+      </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <Card>
-        <template #header>
-          <h2 class="text-lg font-semibold">История рейтинга</h2>
-        </template>
-        <LineChart :data="ratingHistory" />
-      </Card>
+    <!-- 2. Текущая колода -->
+    <card class="mt-4">
+      <h3 slot="header">Рекомендуемая колода (AI)</h3>
+      <div class="row">
+        <div class="col-md-8">
+          <deck-comparison
+              :user-deck="profile.current_deck"
+              :ai-deck="mlData.recommended_deck"
+              :win-probability="mlData.win_probability" />
+        </div>
+        <div class="col-md-4">
+          <base-button @click="applyDeck" type="primary" block>
+            <i class="ni ni-check-bold"></i> Применить колоду
+          </base-button>
+          <div class="mt-3">
+            <h5>Статистика колоды:</h5>
+            <ul>
+              <li>Сред. эликсир: {{ mlData.avg_elixir }}</li>
+              <li>Баланс: {{ mlData.deck_balance }}</li>
+              <li>Совместимость: {{ mlData.deck_synergy }}%</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </card>
 
-      <Card>
-        <template #header>
-          <h2 class="text-lg font-semibold">Последние турниры</h2>
-        </template>
-        <ul>
-          <li v-for="t in tournamentStats.recent" :key="t.id" class="py-2 border-b">
-            {{ t.name }} — {{ formatDate(t.date) }}
-          </li>
-        </ul>
-      </Card>
-    </div>
+    <!-- 3. График из rating-history -->
+    <card class="mt-4">
+      <h3 slot="header">Динамика кубков</h3>
+      <trophy-chart :data="ratingHistory" />
+    </card>
+
+    <!-- 4. ML предсказания из master ветки -->
+    <card class="mt-4">
+      <h3 slot="header">Прогноз на неделю</h3>
+      <div class="row">
+        <div class="col-md-6">
+          <h5>Ожидаемый диапазон кубков:</h5>
+          <range-slider
+              :min="mlData.trophy_range.min"
+              :max="mlData.trophy_range.max"
+              :current="profile.trophies" />
+        </div>
+        <div class="col-md-6">
+          <h5>Рекомендации:</h5>
+          <ul class="list-unstyled">
+            <li v-for="(tip, idx) in mlData.tips" :key="idx" class="mb-2">
+              <badge :type="tip.type">{{ tip.category }}</badge>
+              {{ tip.text }}
+            </li>
+          </ul>
+        </div>
+      </div>
+    </card>
   </div>
 </template>
 
 <script>
-import Card from "@/views/components/Card.vue";
-import CardStat from "@/components/CardStat.vue";
-import LineChart from "@/components/LineChart.vue";
-import axios from "axios";
+import { fetchPlayerProfile, fetchRatingHistory } from '@/api/profile';
+import { predictDeck, loadMLModel } from '@/ml-services';
+import TrophyChart from '@/components/Charts/TrophyChart';
 
 export default {
-  name: "Dashboard",
-  components: { Card, CardStat, LineChart },
+  components: { TrophyChart },
   data() {
     return {
-      userCache: {
+      profile: {
         trophies: 0,
         rewards: [],
-      },
-      deckStats: {
-        totalDecks: 0,
-      },
-      tournamentStats: {
-        total: 0,
-        recent: [],
+        current_deck: []
       },
       ratingHistory: [],
-    };
+      mlData: {
+        recommended_deck: [],
+        win_probability: 0,
+        activity_level: 'Низкая',
+        battle_count: 0,
+        trophy_range: { min: 0, max: 0 },
+        tips: []
+      }
+    }
   },
-  mounted() {
-    this.fetchDashboardData();
+  computed: {
+    ratingTrend() {
+      if (this.ratingHistory.length < 2) return 0;
+      const last = this.ratingHistory[this.ratingHistory.length - 1].rating;
+      const prev = this.ratingHistory[0].rating;
+      return ((last - prev) / prev * 100).toFixed(1);
+    }
+  },
+  async mounted() {
+    await Promise.all([
+      this.loadProfileData(),
+      this.initML()
+    ]);
   },
   methods: {
-    async fetchDashboardData() {
+    async loadProfileData() {
+      const [profile, history] = await Promise.all([
+        fetchPlayerProfile(),
+        fetchRatingHistory()
+      ]);
+      this.profile = profile;
+      this.ratingHistory = history;
+    },
+    async initML() {
+      await loadMLModel();
+      this.mlData = await predictDeck(this.profile.current_deck);
+    },
+    async applyDeck() {
       try {
-        const userRes = await axios.get("/api/user/cache");
-        this.userCache = userRes.data;
-
-        const decksRes = await axios.get("/api/user/decks/stats");
-        this.deckStats = decksRes.data;
-
-        const tournamentsRes = await axios.get("/api/user/tournaments/stats");
-        this.tournamentStats = tournamentsRes.data;
-
-        const ratingRes = await axios.get("/api/user/rating-history");
-        this.ratingHistory = ratingRes.data;
+        await this.$axios.post('/decks/new', {
+          name: 'AI Оптимизированная',
+          cards: this.mlData.recommended_deck
+        });
+        this.$notify({
+          type: 'success',
+          message: 'Колода успешно применена!'
+        });
+        this.profile.current_deck = this.mlData.recommended_deck;
       } catch (error) {
-        console.error("Ошибка загрузки данных для дашборда:", error);
+        this.$notify({
+          type: 'danger',
+          message: 'Ошибка: ' + error.message
+        });
       }
-    },
-    formatDate(dateStr) {
-      const d = new Date(dateStr);
-      return d.toLocaleDateString();
-    },
-  },
-};
+    }
+  }
+}
 </script>
-
-<style scoped>
-</style>

@@ -1,68 +1,149 @@
 <template>
-  <div>
-    <Navbar />
-    <Sidebar />
-    <div class="main-content p-6">
-      <h1 class="text-3xl font-bold mb-4">Мой профиль</h1>
-
-      <div v-if="profile">
-        <p><strong>Имя на сайте:</strong> {{ profile.username }}</p>
-        <p><strong>Дата регистрации:</strong> {{ formattedDate(profile.registered_at) }}</p>
-
-        <h2 class="text-xl font-semibold mt-6 mb-2">История изменения рейтинга</h2>
-        <ul class="list-disc ml-5">
-          <li v-for="change in ratingChanges" :key="change.id">
-            {{ formatDate(change.changed_at) }} — {{ change.rating }} трофеев
-          </li>
-        </ul>
+  <div class="profile">
+    <!-- 1. Основная информация -->
+    <card>
+      <div class="row align-items-center">
+        <div class="col-md-3 text-center">
+          <img :src="user.avatarUrl || defaultAvatar" class="rounded-circle" width="150">
+        </div>
+        <div class="col-md-9">
+          <h2>{{ user.username }}</h2>
+          <p class="text-muted">
+            <i class="ni ni-calendar-grid-58"></i> Зарегистрирован: {{ formatDate(user.registered_at) }}
+          </p>
+          <badge type="primary">
+            <i class="ni ni-tag"></i> {{ user.player_tag }}
+          </badge>
+        </div>
       </div>
-      <div v-else>
-        <p>Загрузка профиля...</p>
+    </card>
+
+    <!-- 2. Статистика -->
+    <div class="row mt-4">
+      <div class="col-md-6">
+        <card>
+          <h3 slot="header">Кубки</h3>
+          <div class="text-center py-4">
+            <h1 class="display-3">{{ stats.trophies }}</h1>
+            <trend-indicator :value="stats.trophy_change_7d" />
+            <p class="text-muted">за 7 дней: {{ Math.abs(stats.trophy_change_7d) }}</p>
+          </div>
+        </card>
+      </div>
+      <div class="col-md-6">
+        <card>
+          <h3 slot="header">Награды</h3>
+          <div class="rewards-grid">
+            <div v-for="(reward, idx) in stats.rewards.slice(0, 6)" :key="idx" class="reward-item">
+              <img :src="rewardIcons[reward.type]" width="40">
+              <small>{{ reward.name }}</small>
+            </div>
+          </div>
+          <router-link to="/rewards" class="btn btn-link btn-sm">
+            Все награды ({{ stats.rewards.length }})
+          </router-link>
+        </card>
       </div>
     </div>
+
+    <!-- 3. Текущая колода -->
+    <card class="mt-4">
+      <div slot="header" class="row align-items-center">
+        <div class="col">
+          <h3 class="mb-0">Текущая колода</h3>
+        </div>
+        <div class="col text-right">
+          <base-button size="sm" @click="$router.push('/decks')">
+            Сменить колоду
+          </base-button>
+        </div>
+      </div>
+      <deck-preview :cards="currentDeck" />
+    </card>
+
+    <!-- 4. История трофеев -->
+    <card class="mt-4">
+      <h3 slot="header">История трофеев</h3>
+      <trophy-chart :data="ratingHistory" />
+    </card>
   </div>
 </template>
 
 <script>
-import axios from "axios";
-import Sidebar from "@/views/components/Sidebar.vue";
-import Navbar from "@/views/components/Navbar.vue";
+import { fetchUserProfile, fetchRatingHistory } from '@/api/profile';
+import { trophyIcons, rewardIcons } from '@/utils/icons';
 
 export default {
-  name: "Profile",
-  components: { Sidebar, Navbar },
   data() {
     return {
-      profile: null,
-      ratingChanges: [],
-    };
+      user: {
+        username: '',
+        player_tag: '',
+        registered_at: '',
+        avatarUrl: ''
+      },
+      stats: {
+        trophies: 0,
+        trophy_change_7d: 0,
+        rewards: []
+      },
+      currentDeck: [],
+      ratingHistory: [],
+      rewardIcons,
+      defaultAvatar: require('@/assets/img/default-avatar.png')
+    }
+  },
+  async mounted() {
+    await this.loadData();
   },
   methods: {
-    async fetchProfile() {
+    async loadData() {
       try {
-        const profileRes = await axios.get("/api/profile");
-        const ratingRes = await axios.get("/api/profile/rating-changes");
-        this.profile = profileRes.data;
-        this.ratingChanges = ratingRes.data;
-      } catch (err) {
-        console.error("Ошибка при загрузке профиля:", err);
+        const [profile, history] = await Promise.all([
+          fetchUserProfile(),
+          fetchRatingHistory()
+        ]);
+
+        this.user = {
+          username: profile.name,
+          player_tag: profile.player_tag,
+          registered_at: profile.registered_at,
+          avatarUrl: profile.avatar_url
+        };
+
+        this.stats = {
+          trophies: profile.trophies,
+          trophy_change_7d: profile.trophy_change_7d,
+          rewards: profile.rewards
+        };
+
+        this.currentDeck = profile.current_deck;
+        this.ratingHistory = history;
+      } catch (error) {
+        console.error('Ошибка загрузки профиля:', error);
       }
     },
-    formattedDate(date) {
-      return new Date(date).toLocaleDateString("ru-RU");
-    },
     formatDate(date) {
-      return new Date(date).toLocaleString("ru-RU");
-    },
-  },
-  mounted() {
-    this.fetchProfile();
-  },
-};
+      return new Date(date).toLocaleDateString('ru-RU', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    }
+  }
+}
 </script>
 
 <style scoped>
-.main-content {
-  margin-left: 250px; /* под размер сайдбара */
+.rewards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  text-align: center;
+}
+.reward-item {
+  padding: 0.5rem;
+  border-radius: 8px;
+  background: #f8f9fe;
 }
 </style>

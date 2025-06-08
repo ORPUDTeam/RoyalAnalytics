@@ -1,94 +1,93 @@
 <template>
-  <div class="signin-page">
-    <Sidebar />
-    <div class="main-content">
-      <Navbar />
-      <div class="container mx-auto mt-10 max-w-md">
-        <h1 class="text-2xl font-semibold mb-4 text-center">Вход</h1>
-        <form @submit.prevent="handleLogin" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-          <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
-              Логин
-            </label>
-            <input
-                v-model="form.username"
-                id="username"
-                type="text"
-                placeholder="Введите логин"
-                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
-                required
-            />
-          </div>
+  <div class="auth-page">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-6">
+          <card class="mt-5">
+            <h2 slot="header" class="text-center">Вход в систему</h2>
 
-          <div class="mb-6">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
-              Пароль
-            </label>
-            <input
-                v-model="form.password"
-                id="password"
-                type="password"
-                placeholder="Введите пароль"
-                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
-                required
-            />
-          </div>
+            <validation-observer v-slot="{ handleSubmit }">
+              <form @submit.prevent="handleSubmit(login)">
+                <!-- Логин -->
+                <validation-provider name="Логин" rules="required" v-slot="{ errors }">
+                  <base-input
+                      label="Логин"
+                      v-model="form.username"
+                      :error="errors[0]"
+                      placeholder="Введите ваш логин">
+                  </base-input>
+                </validation-provider>
 
-          <div class="flex items-center justify-between">
-            <button
-                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                type="submit"
-            >
-              Войти
-            </button>
-          </div>
+                <!-- Пароль -->
+                <validation-provider name="Пароль" rules="required" v-slot="{ errors }">
+                  <base-input
+                      label="Пароль"
+                      type="password"
+                      v-model="form.password"
+                      :error="errors[0]"
+                      placeholder="Введите пароль">
+                  </base-input>
+                </validation-provider>
 
-          <p v-if="errorMessage" class="text-red-500 text-xs italic mt-4">{{ errorMessage }}</p>
-        </form>
+                <!-- Кнопка отправки -->
+                <div class="text-center mt-4">
+                  <base-button type="primary" native-type="submit" :loading="loading">
+                    Войти
+                  </base-button>
+                </div>
+              </form>
+            </validation-observer>
+
+            <div class="text-center mt-3">
+              <router-link to="/registration">Нет аккаунта? Зарегистрироваться</router-link>
+            </div>
+          </card>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import axios from "axios";
-import Sidebar from "@/views/components/Sidebar.vue";
-import Navbar from "@/views/components/Navbar.vue";
-
 export default {
-  name: "Signin",
-  components: {
-    Sidebar,
-    Navbar,
-  },
   data() {
     return {
       form: {
-        username: "",
-        password: "",
+        username: '',
+        password: ''
       },
-      errorMessage: "",
-    };
+      loading: false
+    }
   },
   methods: {
-    async handleLogin() {
+    async login() {
       try {
-        const response = await axios.post("/api/login", this.form);
-        // Можно сохранить токен, если используется JWT:
-        // localStorage.setItem("token", response.data.token);
+        this.loading = true;
+        const response = await this.$axios.post('/login', {
+          name: this.form.username,
+          password: this.form.password
+        });
 
-        this.$router.push("/profile");
+        if (response.status === 302) {
+          this.$router.push('/profile');
+          this.$notify({
+            type: 'success',
+            message: 'Добро пожаловать!'
+          });
+        }
       } catch (error) {
-        this.errorMessage =
-            error.response?.data?.message || "Ошибка входа. Проверьте данные.";
+        let message = 'Ошибка входа';
+        if (error.response && error.response.status === 401) {
+          message = 'Неверные учетные данные';
+        }
+        this.$notify({
+          type: 'danger',
+          message: message
+        });
+      } finally {
+        this.loading = false;
       }
-    },
-  },
-};
-</script>
-
-<style scoped>
-.container {
-  background-color: #f9fafb;
+    }
+  }
 }
-</style>
+</script>
