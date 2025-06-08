@@ -19,7 +19,7 @@ public class UserCacheService {
     private final UserCacheRepository userCacheRepository;
     private final UserCacheMapper userCacheMapper;
     private final ApiService apiService;
-
+    private final RatingCacheService ratingCacheService;
 
 
     public List<UserCache> getUserCachesToUpdate(){
@@ -28,16 +28,18 @@ public class UserCacheService {
     }
 
 
-    public void updatePlayer(UserCache userCache, Player updatePlayer){
-
-        userCacheRepository.save(userCacheMapper.mapToUserCache(userCache, updatePlayer));
+    public UserCache updatePlayer(UserCache userCache, Player updatePlayer){
+        ratingCacheService.create(userCache.getUser(), updatePlayer.getTrophies());
+        return userCacheRepository.save(userCacheMapper.mapToUserCache(userCache, updatePlayer));
     }
 
     @Transactional
     public UserCache forceUpdate(String tag){
         UserCache userCache = userCacheRepository.findById(tag)
                 .orElseThrow(() -> new RuntimeException("нет такого юзера"));
-        return userCacheRepository.save(userCacheMapper.mapToUserCache(userCache, apiService.getPlayer(tag)));
+        Player player = apiService.getPlayer(tag);
+        ratingCacheService.create(userCache.getUser(), player.getTrophies());
+        return userCacheRepository.save(userCacheMapper.mapToUserCache(userCache, player));
     }
 
 
@@ -45,5 +47,7 @@ public class UserCacheService {
         Player player = apiService.getPlayer(tag);
         return userCacheRepository.save(userCacheMapper.mapToUserCache(player));
     }
+
+
 
 }

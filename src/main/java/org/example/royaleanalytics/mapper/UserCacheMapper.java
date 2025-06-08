@@ -1,6 +1,7 @@
 package org.example.royaleanalytics.mapper;
 
 import org.example.royaleanalytics.dto.api.Player;
+import org.example.royaleanalytics.dto.response.PlayerDto;
 import org.example.royaleanalytics.entity.UserCache;
 import org.mapstruct.Mapper;
 
@@ -14,4 +15,5 @@ public interface UserCacheMapper {
 
     UserCache mapToUserCache(Player player);
 
+    PlayerDto mapToPlayerDto(UserCache userCache);
 }
