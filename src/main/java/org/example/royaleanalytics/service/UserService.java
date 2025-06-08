@@ -1,9 +1,7 @@
 package org.example.royaleanalytics.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.royaleanalytics.dto.api.Player;
 import org.example.royaleanalytics.dto.response.PlayerDto;
-import org.example.royaleanalytics.dto.response.RatingHistoryDto;
 import org.example.royaleanalytics.entity.User;
 import org.example.royaleanalytics.entity.UserCache;
 import org.example.royaleanalytics.mapper.UserCacheMapper;
@@ -15,9 +13,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.sql.Date;
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @Service
