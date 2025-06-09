@@ -20,7 +20,7 @@ public class ApiService {
 
     private final CardService cardService;
     private final ClashRoyaleApiClient client;
-    private final UserCacheService userService;
+    private final UserCacheService userCacheService;
 
     @Scheduled(cron = "0 0 0 1 * ?")
     public void updateCards(){
@@ -45,10 +45,10 @@ public class ApiService {
 
     @Scheduled(fixedDelay = 3600000 * 24)
     public void dailyUpdatePlayers(){
-        userService.getUserCachesToUpdate().forEach(userCache -> {
+        userCacheService.getUserCachesToUpdate().forEach(userCache -> {
             String tag = userCache.getPlayer_tag();
             Player updatedPlayer = getPlayer(tag);
-            userService.updatePlayer(userCache, updatedPlayer);
+            userCacheService.updatePlayer(userCache, updatedPlayer);
         });
     }
 }

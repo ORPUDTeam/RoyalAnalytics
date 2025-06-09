@@ -28,18 +28,16 @@ public class UserService {
 
 
     public PlayerDto getProfile(String name){
-        return userMapper.mapToPlayerDto(userRepository.findByUsername(name)
-                .orElseThrow(() -> new RuntimeException("нет такого пользователя")));
-
+        User user = userRepository.findByUsername(name)
+                .orElseThrow(() -> new RuntimeException("нет такого пользователя"));
+        return getCreatedPlayer(user);
     }
 
     public PlayerDto getPlayer(String playerTag){
         Optional<User> optional = userRepository.findById(playerTag);
         if (optional.isPresent()){
             User user = optional.get();
-
-
-            return userMapper.mapToPlayerDto();
+            return getCreatedPlayer(user);
         } else {
             UserCache userCache = null;
             try {
@@ -54,8 +52,9 @@ public class UserService {
     public PlayerDto updateProfile(String name){
         User user = userRepository.findByUsername(name)
                 .orElseThrow(() -> new RuntimeException("нет такого пользователя"));
-        user.setUserCache(userCacheService.forceUpdate(user.playerTag));
-        return userMapper.mapToPlayerDto(userRepository.save(user));
+        UserCache userCache = userCacheService.forceUpdate(user.playerTag);
+        user.setUserCache(userCache);
+        return userMapper.mapToPlayerDto(userRepository.save(user), userCache, );
     }
 
     public User getUser(Authentication authentication){
@@ -65,7 +64,7 @@ public class UserService {
 
     private PlayerDto getCreatedPlayer(User user){
         UserCache userCache = user.getUserCache();
-        UserDeck userDeck = userDeckService.get(user);
-        return userMapper.mapToPlayerDto(user, userCache, userDeck)
+        UserDeck userDeck = userDeckService.getMain(user);
+        return userMapper.mapToPlayerDto(user, userCache, userDeck);
     }
 }

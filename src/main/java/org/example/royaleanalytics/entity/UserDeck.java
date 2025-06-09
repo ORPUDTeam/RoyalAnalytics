@@ -29,7 +29,7 @@ public class UserDeck {
     private String name;
 
     @Column(name = "status")
-    private boolean status;
+    private Boolean status;
 
 
     @ManyToMany

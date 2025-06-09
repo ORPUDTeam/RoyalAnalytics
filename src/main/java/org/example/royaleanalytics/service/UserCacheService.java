@@ -45,6 +45,7 @@ public class UserCacheService {
     public UserCache create(String tag){
         Player player = apiService.getPlayer(tag);
         UserCache userCache = userCacheRepository.save(userCacheMapper.mapToUserCache(player));
+        userDeckService.createMain(player.getDeck(), userCache.getUser());
         return userCache;
     }
 

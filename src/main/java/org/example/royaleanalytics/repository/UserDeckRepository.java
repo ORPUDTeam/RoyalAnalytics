@@ -10,6 +10,6 @@ import java.util.Optional;
 @Repository
 public interface UserDeckRepository extends JpaRepository<UserDeck, Integer> {
 
-    Optional<UserDeck> findByUser(User user);
+    Optional<UserDeck> findByUserAndStatus(User user, boolean status);
 
 }
