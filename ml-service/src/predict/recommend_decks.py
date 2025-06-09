@@ -73,7 +73,3 @@ def recommend_decks(trophies: int, top_n: int = 3):
             good_decks.append(new_deck)
 
     return good_decks[:top_n]
-
-if __name__ == "__main__":
-    for i, rec in enumerate(recommend_decks(3000, 3), 1):
-        print(f"{i}. {rec}")
