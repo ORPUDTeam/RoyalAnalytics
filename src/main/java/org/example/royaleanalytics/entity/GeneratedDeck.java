@@ -28,7 +28,11 @@ public class GeneratedDeck {
     @JoinColumn(name = "player_tag", nullable = false)
     private User user;
 
+    @Column(name = "status")
     private Boolean status;
+
+    @Column(name = "description")
+    private String description;
 
     @ManyToMany
     @JoinTable(
