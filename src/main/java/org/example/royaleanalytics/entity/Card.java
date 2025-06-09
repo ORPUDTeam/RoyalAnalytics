@@ -8,6 +8,7 @@ import lombok.experimental.Accessors;
 import org.hibernate.annotations.Check;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "cards")
@@ -39,4 +40,22 @@ public class Card {
     @Column(name = "updated_at")
     private LocalDateTime updated_at;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
+    @Column(name = "description")
+    private String description;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Card card = (Card) o;
+        return Objects.equals(id, card.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
 }

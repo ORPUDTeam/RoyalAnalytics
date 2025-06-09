@@ -1,6 +1,7 @@
 package org.example.royaleanalytics.mapper;
 
 import org.example.royaleanalytics.dto.api.CardApi;
+import org.example.royaleanalytics.dto.response.CardResponse;
 import org.example.royaleanalytics.entity.Card;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -18,4 +19,5 @@ public interface CardMapper {
     @Mapping(target = "updated_at", expression = "java(LocalDateTime.now())")
     Card mapToCard(CardApi cardApi);
 
+    CardResponse convertToResponse(Card card);
 }

@@ -1,12 +1,14 @@
-package org.example.royaleanalytics.dto.api;
+package org.example.royaleanalytics.dto.response;
 
 import lombok.Data;
 
 @Data
-public class CardApi {
+public class CardResponse {
+    private Integer id;
     private String name;
     private Integer elixir;
     private String rarity;
     private Integer arena;
+    private String description;
     private String imageUrl;
 }
