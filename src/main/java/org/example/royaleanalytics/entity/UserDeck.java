@@ -9,6 +9,8 @@ import lombok.experimental.Accessors;
 import org.hibernate.annotations.Type;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "user_decks")
@@ -19,7 +21,7 @@ import java.time.LocalDateTime;
 public class UserDeck {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "player_tag", nullable = false)
@@ -32,11 +34,14 @@ public class UserDeck {
     private boolean status;
 
 
-    @Column(
-            name = "cards",
-            columnDefinition = "integer[]"
+    @ManyToMany
+    @JoinTable(
+            name = "deck_cards",
+            joinColumns = @JoinColumn(name = "deck_id"),
+            inverseJoinColumns = @JoinColumn(name = "card_id")
     )
-    private Integer[] cards;
+    private Set<Card> cards = new HashSet<>();
+
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

@@ -19,7 +19,7 @@ public class RatingCache {
     @Id
     @Column(name = "id",nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "player_tag", nullable = false)

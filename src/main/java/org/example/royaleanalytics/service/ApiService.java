@@ -20,7 +20,7 @@ public class ApiService {
     private final CardService cardService;
     private final ClashRoyaleApiClient client;
 
-    @Scheduled(fixedDelay = 3600000 * 24 * 30)
+    @Scheduled(cron = "0 0 0 1 * ?")
     public void updateCards(){
         try {
             ResponseEntity<List<CardApi>> response = client.getCards();

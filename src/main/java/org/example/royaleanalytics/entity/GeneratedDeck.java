@@ -9,6 +9,8 @@ import lombok.experimental.Accessors;
 import org.hibernate.annotations.Type;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Data
@@ -20,7 +22,7 @@ public class GeneratedDeck {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "player_tag", nullable = false)
@@ -28,11 +30,14 @@ public class GeneratedDeck {
 
     private Boolean status;
 
-    @Column(
-            name = "cards",
-            columnDefinition = "integer[]"
+    @ManyToMany
+    @JoinTable(
+            name = "generated_deck_cards",  // новая таблица-связка
+            joinColumns = @JoinColumn(name = "generated_deck_id"),
+            inverseJoinColumns = @JoinColumn(name = "card_id")
     )
-    private Integer[] cards;
+    private Set<Card> cards = new HashSet<>();  // Set, чтобы избежать дубликатов
+
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

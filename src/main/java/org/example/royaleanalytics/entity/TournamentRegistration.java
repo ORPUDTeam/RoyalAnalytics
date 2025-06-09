@@ -18,7 +18,7 @@ public class TournamentRegistration {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "tournament_id", nullable = false)
