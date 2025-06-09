@@ -15,7 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserCacheService {
 
-
+    private final UserDeckService userDeckService;
     private final UserCacheRepository userCacheRepository;
     private final UserCacheMapper userCacheMapper;
     private final ApiService apiService;
@@ -26,7 +26,6 @@ public class UserCacheService {
         return userCacheRepository.findByUpdatedAtLessThan(LocalDateTime.now().minusDays(1))
                 .orElse(null);
     }
-
 
     public UserCache updatePlayer(UserCache userCache, Player updatePlayer){
         ratingCacheService.create(userCache.getUser(), updatePlayer.getTrophies());
@@ -45,8 +44,11 @@ public class UserCacheService {
 
     public UserCache create(String tag){
         Player player = apiService.getPlayer(tag);
-        return userCacheRepository.save(userCacheMapper.mapToUserCache(player));
+        UserCache userCache = userCacheRepository.save(userCacheMapper.mapToUserCache(player));
+        return userCache;
     }
+
+
 
 
 

@@ -1,12 +1,10 @@
 package org.example.royaleanalytics.entity;
 
-import com.vladmihalcea.hibernate.type.array.IntArrayType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-import org.hibernate.annotations.Type;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;

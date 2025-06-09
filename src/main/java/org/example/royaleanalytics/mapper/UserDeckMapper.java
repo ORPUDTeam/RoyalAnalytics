@@ -32,4 +32,6 @@ public interface UserDeckMapper {
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "user", ignore = true)
     UserDeck toUserDeck(DeckCreateRequest request);
+
+    UserDeck mapToUserDeck(List<CardApi> cards, User user);
 }

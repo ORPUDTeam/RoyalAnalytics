@@ -34,6 +34,7 @@ public class UserService {
     public PlayerDto getPlayer(String playerTag){
         Optional<User> optional = userRepository.findById(playerTag);
         if (optional.isPresent()){
+            //TODO доставать карты и засовывать отдельно в мапер
             return userMapper.mapToPlayerDto(optional.get());
         } else {
             UserCache userCache = null;

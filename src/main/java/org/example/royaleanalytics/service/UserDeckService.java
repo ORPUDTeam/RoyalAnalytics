@@ -73,4 +73,8 @@ public class UserDeckService {
             userDeck.getCards().add(byId);
         }
     }
+
+    public UserDeck createReal(List<CardApi> deck, User user){
+        return userDeckRepository.save(userDeckMapper.mapToUserDeck(deck, user));
+    }
 }
