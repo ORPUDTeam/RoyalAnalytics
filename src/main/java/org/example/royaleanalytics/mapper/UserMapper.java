@@ -3,6 +3,8 @@ package org.example.royaleanalytics.mapper;
 import org.example.royaleanalytics.dto.request.RegistrationFormDTO;
 import org.example.royaleanalytics.dto.response.PlayerDto;
 import org.example.royaleanalytics.entity.User;
+import org.example.royaleanalytics.entity.UserCache;
+import org.example.royaleanalytics.entity.UserDeck;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -15,5 +17,5 @@ public interface UserMapper {
     User toUser(RegistrationFormDTO registrationFormDTO);
 
 
-    PlayerDto mapToPlayerDto(User user);
+    PlayerDto mapToPlayerDto(User user, UserCache userCache, UserDeck userDeck);
 }

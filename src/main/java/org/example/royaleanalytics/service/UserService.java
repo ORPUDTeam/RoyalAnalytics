@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.royaleanalytics.dto.response.PlayerDto;
 import org.example.royaleanalytics.entity.User;
 import org.example.royaleanalytics.entity.UserCache;
+import org.example.royaleanalytics.entity.UserDeck;
 import org.example.royaleanalytics.mapper.UserCacheMapper;
 import org.example.royaleanalytics.mapper.UserMapper;
 import org.example.royaleanalytics.repository.UserCacheRepository;
@@ -19,6 +20,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService {
 
+    private final UserDeckService userDeckService;
     private final UserRepository userRepository;
     private final UserCacheService userCacheService;
     private final UserMapper userMapper;
@@ -34,8 +36,10 @@ public class UserService {
     public PlayerDto getPlayer(String playerTag){
         Optional<User> optional = userRepository.findById(playerTag);
         if (optional.isPresent()){
-            //TODO доставать карты и засовывать отдельно в мапер
-            return userMapper.mapToPlayerDto(optional.get());
+            User user = optional.get();
+
+
+            return userMapper.mapToPlayerDto();
         } else {
             UserCache userCache = null;
             try {
@@ -59,4 +63,9 @@ public class UserService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
+    private PlayerDto getCreatedPlayer(User user){
+        UserCache userCache = user.getUserCache();
+        UserDeck userDeck = userDeckService.get(user);
+        return userMapper.mapToPlayerDto(user, userCache, userDeck)
+    }
 }

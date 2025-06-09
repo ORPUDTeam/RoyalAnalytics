@@ -77,4 +77,10 @@ public class UserDeckService {
     public UserDeck createReal(List<CardApi> deck, User user){
         return userDeckRepository.save(userDeckMapper.mapToUserDeck(deck, user));
     }
+
+    public UserDeck get(User user){
+        return userDeckRepository.findByUser(user)
+                .orElseThrow(() -> new RuntimeException("нет такой деки"));
+    }
+
 }
