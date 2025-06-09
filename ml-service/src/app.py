@@ -1,11 +1,7 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Path
 from pydantic import BaseModel
 import joblib
 from src.predict.recommend_decks import recommend_decks
-
-class Req(BaseModel):
-    trophies: int
-    top_n: int = 3
 
 class Resp(BaseModel):
     decks: list[list[str]]
@@ -15,10 +11,14 @@ app = FastAPI(
     version="1.0",
 )
 
-@app.post("/recommend", response_model=Resp)
-def recommend(req: Req):
+@app.get("/recommend/{trophies}", response_model=Resp)
+def recommend(trophies: int = Path(..., ge=0, le=10000)):
     try:
-        decks = recommend_decks(req.trophies, req.top_n)
+        decks = recommend_decks(trophies, top_n=1)
+        if not decks:
+            raise HTTPException(status_code=404, detail="No decks found")
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     return Resp(decks=decks)
