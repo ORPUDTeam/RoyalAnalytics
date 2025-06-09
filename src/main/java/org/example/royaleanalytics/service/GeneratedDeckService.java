@@ -9,6 +9,7 @@ import org.example.royaleanalytics.dto.response.GeneratedDeckResponse;
 import org.example.royaleanalytics.dto.response.RecommendationResponse;
 import org.example.royaleanalytics.entity.Card;
 import org.example.royaleanalytics.entity.GeneratedDeck;
+import org.example.royaleanalytics.entity.User;
 import org.example.royaleanalytics.exception.ServiceException;
 import org.example.royaleanalytics.mapper.GeneratedDeckMapper;
 import org.example.royaleanalytics.openFeign.GeneratedDeckClient;
@@ -22,7 +23,6 @@ import org.springframework.validation.annotation.Validated;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,9 +35,11 @@ public class GeneratedDeckService {
     private final CardRepository cardRepository;
     private final UserService userService;
 
-    public List<GeneratedDeckResponse> getAll() {
+    public List<GeneratedDeckResponse> getAll(Authentication authentication) {
+        User user = userService.getUser(authentication);
         return repository.findAll()
                 .stream()
+                .filter(generatedDeck -> generatedDeck.getUser().equals(user))
                 .map(mapper::toGeneratedDeckResponse)
                 .toList();
     }

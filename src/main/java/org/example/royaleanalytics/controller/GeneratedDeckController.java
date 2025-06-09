@@ -7,6 +7,7 @@ import org.example.royaleanalytics.service.GeneratedDeckService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,12 +25,15 @@ public class GeneratedDeckController {
 
     @GetMapping("/generated")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<List<GeneratedDeckResponse>> getGeneratedDecks() {
-        return ResponseEntity.ok(generatedDeckService.getAll());
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return ResponseEntity.ok(generatedDeckService.getAll(auth));
     }
 
     @PostMapping("/generate")
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<GeneratedDeckResponse> generate(GeneratedDeckRequest generatedDeckRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         GeneratedDeckResponse response = generatedDeckService.generate(authentication,generatedDeckRequest);

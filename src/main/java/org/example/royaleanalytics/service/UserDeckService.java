@@ -32,9 +32,11 @@ public class UserDeckService {
     private final UserService userService;
     private final UserRepository userRepository;
 
-    public List<UserDeckResponse> getAll() {
+    public List<UserDeckResponse> getAll(Authentication authentication) {
+        User user = userService.getUser(authentication);
         return deckRepository.findAll()
                 .stream()
+                .filter(deck -> deck.getUser().getUsername().equals(user.getUsername()))
                 .map(mapper::toResponse)
                 .toList();
     }
@@ -46,16 +48,19 @@ public class UserDeckService {
         userDeck.setCards(allById);
         userDeck.setCreatedAt(LocalDateTime.now());
         userDeck.setStatus(true);
-        User user = userRepository.findByUsername(authentication.getName())
-                .orElseThrow(() -> new UsernameNotFoundException(authentication.getName()));
+        User user = userService.getUser(authentication);
         userDeck.setUser(user);
         deckRepository.save(userDeck);
     }
 
-    public void patch(int deck_id, @Valid DeckCreateRequest request) {
+    public void patch(Authentication authentication, int deck_id, @Valid DeckCreateRequest request) {
         UserDeck deck = deckRepository.findById(deck_id)
                 .orElseThrow(() -> new UserDeckNotFoundException(deck_id));
+        if(deck.getUser().equals(userService.getUser(authentication))) {
+            throw new RuntimeException("нельзя изменять чужие колоды");
+        }
         patching(deck, request);
+        deckRepository.save(deck);
     }
 
     private void patching(UserDeck userDeck, DeckCreateRequest request) {

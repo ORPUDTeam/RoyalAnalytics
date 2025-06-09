@@ -6,7 +6,9 @@ import org.example.royaleanalytics.dto.request.DeckCreateRequest;
 import org.example.royaleanalytics.service.UserDeckService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,20 +23,26 @@ public class UserDeckController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<UserDeckResponse>> getDecks() {
-        return ResponseEntity.ok(userDeckService.getAll());
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return ResponseEntity.ok(userDeckService.getAll(auth));
     }
 
     @PostMapping("/new")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Void> create(Authentication authentication, DeckCreateRequest request) {
-        userDeckService.create(authentication,request);
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<Void> create(DeckCreateRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        userDeckService.create(authentication, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PatchMapping("/{deck_id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Void> patch(@PathVariable("deck_id") int deck_id,@RequestBody DeckCreateRequest request) {
-        userDeckService.patch(deck_id,request);
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<Void> patch(@PathVariable("deck_id") int deck_id,
+                                      @RequestBody DeckCreateRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        userDeckService.patch(authentication, deck_id, request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
