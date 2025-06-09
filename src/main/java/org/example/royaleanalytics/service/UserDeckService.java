@@ -14,7 +14,6 @@ import org.example.royaleanalytics.repository.CardRepository;
 import org.example.royaleanalytics.repository.UserDeckRepository;
 import org.example.royaleanalytics.repository.UserRepository;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 

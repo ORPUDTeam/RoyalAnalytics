@@ -4,7 +4,6 @@ import feign.FeignException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.royaleanalytics.dto.request.GeneratedDeckRequest;
-import org.example.royaleanalytics.dto.request.RecommendationRequest;
 import org.example.royaleanalytics.dto.response.GeneratedDeckResponse;
 import org.example.royaleanalytics.dto.response.RecommendationResponse;
 import org.example.royaleanalytics.entity.Card;
@@ -46,7 +45,7 @@ public class GeneratedDeckService {
 
     public GeneratedDeckResponse generate(Authentication authentication, @Valid GeneratedDeckRequest generatedDeckRequest) {
         try {
-            RecommendationResponse recommendations = client.getRecommendations(new RecommendationRequest(generatedDeckRequest.getRating(), 1));
+            RecommendationResponse recommendations = client.getRecommendations(generatedDeckRequest.getRating());
             for(List<String> decks: recommendations.getDecks()){
                 Set<Card> cards = new HashSet<>(cardRepository.findAllByNames(decks));
                 GeneratedDeck generatedDeck = new GeneratedDeck();
