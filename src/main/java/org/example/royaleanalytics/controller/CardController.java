@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.royaleanalytics.dto.request.CardFilter;
 import org.example.royaleanalytics.dto.response.CardResponse;
 import org.example.royaleanalytics.service.CardService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +18,7 @@ public class CardController {
     private final CardService cardService;
 
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<CardResponse>> getAll(
             @RequestParam("rarity") String rarity,
             @RequestParam("elixir") int elixir,
@@ -31,6 +33,7 @@ public class CardController {
     }
 
     @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<CardResponse> getById(@PathVariable("id") int id) {
         return ResponseEntity.ok(cardService.getById(id));
     }

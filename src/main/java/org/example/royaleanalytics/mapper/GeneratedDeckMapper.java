@@ -18,8 +18,6 @@ public interface GeneratedDeckMapper {
     @Mapping(target = "cards", source = "cards",qualifiedByName = "mapCardSetToIndexesList")
     GeneratedDeckResponse toGeneratedDeckResponse(GeneratedDeck generatedDeck);
 
-    GeneratedDeck toGeneratedDeck(GeneratedDeckResponse generatedDeckResponse);
-
     @Named("mapCardSetToIndexesList")
     default List<Integer> mapCardSetToIndexesList(Set<Card> cards){
         return cards.stream()

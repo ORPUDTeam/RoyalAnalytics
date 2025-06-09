@@ -32,6 +32,7 @@ public class UserDeckController {
     }
 
     @PatchMapping("/{deck_id}")
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Void> patch(@PathVariable("deck_id") int deck_id,@RequestBody DeckCreateRequest request) {
         userDeckService.patch(deck_id,request);
         return new ResponseEntity<>(HttpStatus.OK);

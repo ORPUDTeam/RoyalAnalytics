@@ -58,5 +58,6 @@ public class GeneratedDeckService {
         } catch (FeignException.FeignClientException e) {
             throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
+        return null;
     }
 }
