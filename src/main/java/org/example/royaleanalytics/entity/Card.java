@@ -34,9 +34,6 @@ public class Card {
     @Column(name = "rarity", length = 20)
     private String rarity;
 
-    @Column(name = "arena", nullable = false)
-    private Integer arena;
-
     @Column(name = "updated_at")
     private LocalDateTime updated_at;
 

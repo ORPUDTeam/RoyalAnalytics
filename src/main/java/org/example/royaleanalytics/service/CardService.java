@@ -37,7 +37,6 @@ public class CardService {
         return cardRepository.findAll().stream()
                 .filter(card -> filter.getRarity() == null || card.getRarity().equals(filter.getRarity()))
                 .filter(card -> filter.getElixir() == null || card.getElixir() == (filter.getElixir()))
-                .filter(card -> filter.getArena() == null || card.getArena().equals(filter.getArena()))
                 .map(cardMapper::convertToResponse)
                 .collect(Collectors.toList());
     }

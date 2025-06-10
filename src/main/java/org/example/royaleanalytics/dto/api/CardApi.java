@@ -7,6 +7,5 @@ public class CardApi {
     private String name;
     private Integer elixir;
     private String rarity;
-    private Integer arena;
     private String imageUrl;
 }

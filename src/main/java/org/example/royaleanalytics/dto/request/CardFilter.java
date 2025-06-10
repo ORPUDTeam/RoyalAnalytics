@@ -15,7 +15,4 @@ public class CardFilter {
     @Max(value = 10, message = "Elixir must be at most 10")
     @Nullable
     private Integer elixir;
-    @Min(value = 0, message = "Arena must be positive")
-    @Nullable
-    private Integer arena;
 }

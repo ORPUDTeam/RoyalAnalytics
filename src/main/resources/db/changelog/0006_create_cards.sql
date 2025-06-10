@@ -8,15 +8,13 @@ CREATE TABLE cards
     name       VARCHAR(100) NOT NULL,
     elixir     INTEGER NOT NULL,
     rarity     VARCHAR(20),
-    arena      INTEGER NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     description VARCHAR NOT NULL,
     image_url TEXT NOT NULL,
 
     CONSTRAINT cards_id_pk PRIMARY KEY (id),
     CONSTRAINT cards_elixir_check CHECK (elixir >= 1 AND elixir <= 10),
-    CONSTRAINT cards_rarity_check CHECK (rarity IN ('Common', 'Rare', 'Epic', 'Legendary', 'Champion')),
-    CONSTRAINT cards_arena_check CHECK (arena >= 0 AND arena <= 20)
+    CONSTRAINT cards_rarity_check CHECK (rarity IN ('Common', 'Rare', 'Epic', 'Legendary', 'Champion'))
 
 );
 

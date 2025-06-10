@@ -46,7 +46,7 @@ public class UserDeckService {
                 .findAllById(request.getCards()));
         userDeck.setCards(allById);
         userDeck.setCreatedAt(LocalDateTime.now());
-        userDeck.setStatus(true);
+        userDeck.setStatus(false);
         User user = userService.getUser(authentication);
         userDeck.setUser(user);
         deckRepository.save(userDeck);
