@@ -3,6 +3,7 @@ package org.example.royaleanalytics.service;
 import lombok.RequiredArgsConstructor;
 import org.example.royaleanalytics.dto.api.Player;
 import org.example.royaleanalytics.entity.UserCache;
+import org.example.royaleanalytics.entity.UserDeck;
 import org.example.royaleanalytics.mapper.UserCacheMapper;
 import org.example.royaleanalytics.repository.UserCacheRepository;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,8 @@ public class UserCacheService {
 
     public UserCache updatePlayer(UserCache userCache, Player updatePlayer){
         ratingCacheService.create(userCache.getUser(), updatePlayer.getTrophies());
+        UserDeck userDeck = userCache.getUserDeck();
+
         return userCacheRepository.save(userCacheMapper.mapToUserCache(userCache, updatePlayer));
     }
 
@@ -38,6 +41,7 @@ public class UserCacheService {
                 .orElseThrow(() -> new RuntimeException("нет такого юзера"));
         Player player = apiService.getPlayer(tag);
         ratingCacheService.create(userCache.getUser(), player.getTrophies());
+        userDeckService.updateMain(player.getDeck(), userCache.getUserDeck());
         return userCacheRepository.save(userCacheMapper.mapToUserCache(userCache, player));
     }
 

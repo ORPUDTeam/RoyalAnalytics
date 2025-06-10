@@ -7,8 +7,6 @@ import org.example.royaleanalytics.entity.UserCache;
 import org.example.royaleanalytics.entity.UserDeck;
 import org.example.royaleanalytics.mapper.UserCacheMapper;
 import org.example.royaleanalytics.mapper.UserMapper;
-import org.example.royaleanalytics.repository.UserCacheRepository;
-import org.example.royaleanalytics.entity.User;
 import org.example.royaleanalytics.repository.UserRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -54,7 +52,7 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("нет такого пользователя"));
         UserCache userCache = userCacheService.forceUpdate(user.playerTag);
         user.setUserCache(userCache);
-        return userMapper.mapToPlayerDto(userRepository.save(user), userCache, );
+        return userMapper.mapToPlayerDto(userRepository.save(user), userCache, userCache.getUserDeck());
     }
 
     public User getUser(Authentication authentication){

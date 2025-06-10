@@ -36,4 +36,6 @@ public class User {
     @MapsId
     @JoinColumn(name = "playerTag")
     private UserCache userCache;
+
+
 }

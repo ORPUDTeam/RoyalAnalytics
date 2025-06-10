@@ -36,10 +36,6 @@ public class CardService {
                 cardRepository.save(cardMapper.mapToCard(cardApi));
             }
         });
-        List<Card> cards = cardApis.stream()
-                .map(cardMapper::mapToCard)
-                .toList();
-        cardRepository.saveAll(cards);
     }
 
     public List<CardResponse> getAll(@Valid CardFilter filter) {
@@ -53,5 +49,10 @@ public class CardService {
     public CardResponse getById(int id) {
         return cardMapper.convertToResponse(cardRepository.findById(id)
                 .orElseThrow(() -> new CardNotFoundException(id)));
+    }
+
+    public Card findByName(String name){
+        return cardRepository.findByName(name)
+                .orElseThrow(() -> new RuntimeException("нет такой карты"));
     }
 }

@@ -4,10 +4,11 @@ import lombok.Data;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Data
 public class Player {
     private Integer trophies;
-    private List<CardApi> deck;
+    private Set<CardApi> deck;
     private Map<String, Object> rewards;
 }

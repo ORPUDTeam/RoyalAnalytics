@@ -40,4 +40,8 @@ public class UserCache {
     @MapsId
     @JoinColumn(name = "player_tag")
     private User user;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "main_deck_id")
+    private UserDeck userDeck;
 }

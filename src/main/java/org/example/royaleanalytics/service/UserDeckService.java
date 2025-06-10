@@ -2,6 +2,7 @@ package org.example.royaleanalytics.service;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.royaleanalytics.dto.api.CardApi;
 import org.example.royaleanalytics.dto.response.UserDeckResponse;
 import org.example.royaleanalytics.dto.request.DeckCreateRequest;
 import org.example.royaleanalytics.entity.Card;
@@ -19,6 +20,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +32,7 @@ public class UserDeckService {
     private final UserDeckMapper mapper;
     private final UserService userService;
     private final UserRepository userRepository;
+    private final CardService cardService;
 
     public List<UserDeckResponse> getAll(Authentication authentication) {
         User user = userService.getUser(authentication);
@@ -74,13 +77,19 @@ public class UserDeckService {
         }
     }
 
-    public UserDeck createMain(List<CardApi> deck, User user){
-        return userDeckRepository.save(userDeckMapper.mapToUserDeck(deck, user));
+    public UserDeck createMain(Set<CardApi> deck, User user){
+        return deckRepository.save(mapper.mapToUserDeck(deck, user));
     }
 
     public UserDeck getMain(User user){
-        return userDeckRepository.findByUserAndStatus(user, true)
+        return deckRepository.findByUserAndStatus(user, true)
                 .orElseThrow(() -> new RuntimeException("нет такой деки"));
+    }
+
+    public UserDeck updateMain(Set<CardApi> cards, UserDeck userDeck){
+        Set<Card> cards1 = cards.stream().map(cardApi -> cardService.findByName(cardApi.getName())).collect(Collectors.toSet());
+        userDeck.setCards(cards1);
+        return deckRepository.save(userDeck);
     }
 
 }
