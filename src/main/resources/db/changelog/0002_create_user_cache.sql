@@ -5,7 +5,6 @@ CREATE TABLE user_cache
 (
     player_tag      VARCHAR(20) NOT NULL,
     trophies        INTEGER,
-    current_deck_id INTEGER,
     rewards         JSONB,
     updated_at      TIMESTAMP,
     main_deck_id    INTEGER,

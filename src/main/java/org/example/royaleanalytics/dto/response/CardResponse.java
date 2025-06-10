@@ -8,6 +8,5 @@ public class CardResponse {
     private String name;
     private Integer elixir;
     private String rarity;
-    private String description;
     private String imageUrl;
 }

@@ -35,5 +35,10 @@ public interface UserDeckMapper {
     @Mapping(target = "user", ignore = true)
     UserDeck toUserDeck(DeckCreateRequest request);
 
-    UserDeck mapToUserDeck(Set<CardApi> cards, User user);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "status", constant = "true")
+    @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "name", constant = "default")
+    UserDeck mapToUserDeck(Set<Card> cards, User user);
 }

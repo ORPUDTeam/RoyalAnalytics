@@ -15,6 +15,7 @@ import org.example.royaleanalytics.repository.CardRepository;
 import org.example.royaleanalytics.repository.UserDeckRepository;
 import org.example.royaleanalytics.repository.UserRepository;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -30,12 +31,12 @@ public class UserDeckService {
     private final UserDeckRepository deckRepository;
     private final CardRepository cardRepository;
     private final UserDeckMapper mapper;
-    private final UserService userService;
     private final UserRepository userRepository;
     private final CardService cardService;
 
     public List<UserDeckResponse> getAll(Authentication authentication) {
-        User user = userService.getUser(authentication);
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         return deckRepository.findAll()
                 .stream()
                 .filter(deck -> deck.getUser().getUsername().equals(user.getUsername()))
@@ -50,7 +51,8 @@ public class UserDeckService {
         userDeck.setCards(allById);
         userDeck.setCreatedAt(LocalDateTime.now());
         userDeck.setStatus(false);
-        User user = userService.getUser(authentication);
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         userDeck.setUser(user);
         deckRepository.save(userDeck);
     }
@@ -58,7 +60,9 @@ public class UserDeckService {
     public void patch(Authentication authentication, int deck_id, @Valid DeckCreateRequest request) {
         UserDeck deck = deckRepository.findById(deck_id)
                 .orElseThrow(() -> new UserDeckNotFoundException(deck_id));
-        if(deck.getUser().equals(userService.getUser(authentication))) {
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        if(deck.getUser().equals(user)) {
             throw new RuntimeException("нельзя изменять чужие колоды");
         }
         patching(deck, request);
@@ -77,7 +81,8 @@ public class UserDeckService {
         }
     }
 
-    public UserDeck createMain(Set<CardApi> deck, User user){
+    public UserDeck createMain(Set<CardApi> deck1, User user){
+        Set<Card> deck = deck1.stream().map(cardApi -> cardService.findByName(cardApi.getName())).collect(Collectors.toSet());
         return deckRepository.save(mapper.mapToUserDeck(deck, user));
     }
 

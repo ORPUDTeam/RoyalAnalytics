@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Date;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +37,9 @@ public class RatingCacheService {
     public RatingHistoryDto getRatingHistory(Date startDate, Date endDate, String name){
         User user = userRepository.findByUsername(name)
                 .orElseThrow(() -> new RuntimeException("нет такого юзера"));
-        return ratingCacheMapper.mapToRatingHistoryDto(ratingCacheRepository.findByChangedAtAfterAndChangedAtBeforeAndUser(startDate.toLocalDate().atStartOfDay(), endDate.toLocalDate().atStartOfDay(), user));
+
+        List<RatingCache> ratingCacheList = ratingCacheRepository.findByChangedAtAfterAndChangedAtBeforeAndUser(startDate.toLocalDate().atStartOfDay(), endDate.toLocalDate().atStartOfDay(), user);
+        return new RatingHistoryDto().setRatingChangeDtoList(ratingCacheList.stream()
+                .map(ratingCacheMapper::mapToRatingChangeDto).toList());
     }
 }

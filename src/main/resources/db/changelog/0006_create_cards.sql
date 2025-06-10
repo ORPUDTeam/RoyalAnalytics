@@ -9,7 +9,6 @@ CREATE TABLE cards
     elixir     INTEGER NOT NULL,
     rarity     VARCHAR(20),
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    description VARCHAR NOT NULL,
     image_url TEXT NOT NULL,
 
     CONSTRAINT cards_id_pk PRIMARY KEY (id),

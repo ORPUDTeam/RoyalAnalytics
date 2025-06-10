@@ -26,9 +26,6 @@ public class UserCache {
     @Column(name = "trophies")
     private Integer trophies;
 
-    @Column(name = "current_deck_id")
-    private int currentDeckId;
-
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "rewards",columnDefinition = "jsonb")
     private Map<String, Object> rewards;

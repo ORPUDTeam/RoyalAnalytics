@@ -1,11 +1,13 @@
 package org.example.royaleanalytics.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.royaleanalytics.dto.api.Player;
 import org.example.royaleanalytics.entity.UserCache;
 import org.example.royaleanalytics.entity.UserDeck;
 import org.example.royaleanalytics.mapper.UserCacheMapper;
 import org.example.royaleanalytics.repository.UserCacheRepository;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,47 +16,31 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserCacheService {
-
-    private final UserDeckService userDeckService;
     private final UserCacheRepository userCacheRepository;
-    private final UserCacheMapper userCacheMapper;
-    private final ApiService apiService;
-    private final RatingCacheService ratingCacheService;
+    private final PlayerUpdateService playerUpdateService;
 
-
-    public List<UserCache> getUserCachesToUpdate(){
+    public List<UserCache> getUserCachesToUpdate() {
         return userCacheRepository.findByUpdatedAtLessThan(LocalDateTime.now().minusDays(1))
                 .orElse(null);
     }
 
-    public UserCache updatePlayer(UserCache userCache, Player updatePlayer){
-        ratingCacheService.create(userCache.getUser(), updatePlayer.getTrophies());
-        UserDeck userDeck = userCache.getUserDeck();
-
-        return userCacheRepository.save(userCacheMapper.mapToUserCache(userCache, updatePlayer));
+    @Transactional
+    public UserCache getOrCreate(String playerTag) {
+        return userCacheRepository.findById(playerTag)
+                .orElseGet(() -> {
+                    try {
+                        return playerUpdateService.create(playerTag);
+                    } catch (Exception e) {
+                        log.error("Failed to create user cache for tag: {}", playerTag, e);
+                        throw new RuntimeException("Failed to create user cache");
+                    }
+                });
     }
 
     @Transactional
-    public UserCache forceUpdate(String tag){
-        UserCache userCache = userCacheRepository.findById(tag)
-                .orElseThrow(() -> new RuntimeException("нет такого юзера"));
-        Player player = apiService.getPlayer(tag);
-        ratingCacheService.create(userCache.getUser(), player.getTrophies());
-        userDeckService.updateMain(player.getDeck(), userCache.getUserDeck());
-        return userCacheRepository.save(userCacheMapper.mapToUserCache(userCache, player));
+    public UserCache forceUpdate(String playerTag) {
+        return playerUpdateService.forceUpdate(playerTag);
     }
-
-
-    public UserCache create(String tag){
-        Player player = apiService.getPlayer(tag);
-        UserCache userCache = userCacheRepository.save(userCacheMapper.mapToUserCache(player));
-        userDeckService.createMain(player.getDeck(), userCache.getUser());
-        return userCache;
-    }
-
-
-
-
-
 }
