@@ -23,16 +23,8 @@ public class UserCache {
     @Column(name = "player_tag", nullable = false, insertable = false)
     private String player_tag;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @MapsId
-    @JoinColumn(name = "player_tag")
-    private User user;
-
     @Column(name = "trophies")
-    private int trophies;
-
-    @Column(name = "current_deck_id")
-    private int currentDeckId;
+    private Integer trophies;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "rewards",columnDefinition = "jsonb")
@@ -41,4 +33,11 @@ public class UserCache {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @OneToOne(fetch = FetchType.EAGER, optional = true)
+    @JoinColumn(name = "player_tag", referencedColumnName = "player_tag", insertable = false, updatable = false)
+    private User user;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "main_deck_id")
+    private UserDeck userDeck;
 }

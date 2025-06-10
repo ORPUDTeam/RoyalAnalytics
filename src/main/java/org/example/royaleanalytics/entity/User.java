@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Entity
@@ -32,5 +31,9 @@ public class User {
 
     @Column(insertable = false)
     public String role;
+
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    private UserCache userCache;
+
 
 }

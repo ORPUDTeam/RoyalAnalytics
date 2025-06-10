@@ -11,8 +11,7 @@ CREATE TABLE user_decks
     cards      INTEGER[]    NOT NULL, -- массив id карт
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     ---------------------------------------------------
-    CONSTRAINT user_decks_id_pk PRIMARY KEY (id),
-    CONSTRAINT user_decks_tag_fk FOREIGN KEY (player_tag) REFERENCES users (player_tag) ON DELETE CASCADE
+    CONSTRAINT user_decks_id_pk PRIMARY KEY (id)
 );
 
 --rollback DROP TABLE user_decks;

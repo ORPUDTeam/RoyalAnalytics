@@ -1,10 +1,9 @@
 package org.example.royaleanalytics.mapper;
 
-import org.example.royaleanalytics.dto.request.RegistrationFormDTO;
+import org.example.royaleanalytics.dto.api.Player;
 import org.example.royaleanalytics.dto.response.PlayerDto;
 import org.example.royaleanalytics.dto.response.UserDeckResponse;
 import org.example.royaleanalytics.entity.Card;
-import org.example.royaleanalytics.entity.User;
 import org.example.royaleanalytics.entity.UserCache;
 import org.example.royaleanalytics.entity.UserDeck;
 import org.mapstruct.Mapper;
@@ -13,18 +12,28 @@ import org.mapstruct.Mapping;
 import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 
 @Mapper(componentModel = SPRING)
-public interface UserMapper {
-    @Mapping(target = "playerTag", source = "playerTag")
-    @Mapping(target = "password_hash", ignore = true)
-    User toUser(RegistrationFormDTO registrationFormDTO);
+public interface UserCacheMapper {
 
 
-    default PlayerDto mapToPlayerDto(User user, UserCache userCache, UserDeck userDeck){
+    default UserCache mapToUserCache(UserCache oldCache, Player player){
+        oldCache.setTrophies(player.getTrophies());
+        oldCache.setRewards(player.getRewards());
+        return oldCache;
+    }
+
+    @Mapping(target = "trophies", source = "player.trophies")
+    @Mapping(target = "rewards", source = "player.rewards")
+    @Mapping(target = "updatedAt", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "player_tag", ignore = true)
+    UserCache mapToUserCache(Player player);
+
+    default PlayerDto mapToPlayerDto(UserCache userCache){
+        UserDeck userDeck = userCache.getUserDeck();
         PlayerDto playerDto = new PlayerDto()
-                .setName(user.username)
+                .setName(userCache.getPlayer_tag())
                 .setTrophies(userCache.getTrophies())
                 .setRewards(userCache.getRewards())
-                .setRegistered_at(user.registered_at);
+                .setRegistered_at(userCache.getUpdatedAt());
         UserDeckResponse userDeckResponse = new UserDeckResponse()
                 .setId(userDeck.getId())
                 .setStatus(userDeck.getStatus())

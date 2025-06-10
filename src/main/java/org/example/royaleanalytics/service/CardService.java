@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,10 +28,14 @@ public class CardService {
 
     @Transactional
     public void processingCardsFromApi(List<CardApi> cardApis){
-        List<Card> cards = cardApis.stream()
-                .map(cardMapper::mapToCard)
-                .toList();
-        cardRepository.saveAll(cards);
+        cardApis.forEach(cardApi -> {
+            Optional<Card> oldCard = cardRepository.findByName(cardApi.getName());
+            if (oldCard.isPresent()){
+                cardRepository.save(cardMapper.updateCard(oldCard.get(), cardApi));
+            } else{
+                cardRepository.save(cardMapper.mapToCard(cardApi));
+            }
+        });
     }
 
     public List<CardResponse> getAll(@Valid CardFilter filter) {
@@ -44,5 +49,10 @@ public class CardService {
     public CardResponse getById(int id) {
         return cardMapper.convertToResponse(cardRepository.findById(id)
                 .orElseThrow(() -> new CardNotFoundException(id)));
+    }
+
+    public Card findByName(String name){
+        return cardRepository.findByName(name)
+                .orElseThrow(() -> new RuntimeException("нет такой карты"));
     }
 }

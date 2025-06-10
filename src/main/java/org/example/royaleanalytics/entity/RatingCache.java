@@ -26,7 +26,7 @@ public class RatingCache {
     private User user;
 
     @Column(name = "rating", nullable = false)
-    private int rating;
+    private Integer rating;
 
     @Column(name = "changed_at")
     private LocalDateTime changedAt;

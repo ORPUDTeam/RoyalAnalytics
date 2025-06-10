@@ -2,6 +2,8 @@ package org.example.royaleanalytics.service;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.royaleanalytics.dto.api.CardApi;
+import org.example.royaleanalytics.dto.api.Player;
 import org.example.royaleanalytics.dto.response.UserDeckResponse;
 import org.example.royaleanalytics.dto.request.DeckCreateRequest;
 import org.example.royaleanalytics.entity.Card;
@@ -14,11 +16,13 @@ import org.example.royaleanalytics.repository.CardRepository;
 import org.example.royaleanalytics.repository.UserDeckRepository;
 import org.example.royaleanalytics.repository.UserRepository;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,14 +32,15 @@ public class UserDeckService {
     private final UserDeckRepository deckRepository;
     private final CardRepository cardRepository;
     private final UserDeckMapper mapper;
-    private final UserService userService;
     private final UserRepository userRepository;
+    private final CardService cardService;
 
     public List<UserDeckResponse> getAll(Authentication authentication) {
-        User user = userService.getUser(authentication);
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         return deckRepository.findAll()
                 .stream()
-                .filter(deck -> deck.getUser().getUsername().equals(user.getUsername()))
+                .filter(deck -> deck.getPlayerTag().equals(user.playerTag))
                 .map(mapper::toResponse)
                 .toList();
     }
@@ -47,15 +52,18 @@ public class UserDeckService {
         userDeck.setCards(allById);
         userDeck.setCreatedAt(LocalDateTime.now());
         userDeck.setStatus(false);
-        User user = userService.getUser(authentication);
-        userDeck.setUser(user);
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        userDeck.setPlayerTag(user.playerTag);
         deckRepository.save(userDeck);
     }
 
     public void patch(Authentication authentication, int deck_id, @Valid DeckCreateRequest request) {
         UserDeck deck = deckRepository.findById(deck_id)
                 .orElseThrow(() -> new UserDeckNotFoundException(deck_id));
-        if(deck.getUser().equals(userService.getUser(authentication))) {
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        if(deck.getPlayerTag().equals(user.playerTag)) {
             throw new RuntimeException("нельзя изменять чужие колоды");
         }
         patching(deck, request);
@@ -73,4 +81,23 @@ public class UserDeckService {
             userDeck.getCards().add(byId);
         }
     }
+
+    public UserDeck createMain(Player player, User user){
+        Set<Card> deck = player.getDeck().stream().map(cardApi -> cardService.findByName(cardApi.getName())).collect(Collectors.toSet());
+        UserDeck userDeck = mapper.mapToUserDeck(deck, user, player.getPlayer_tag());
+        userDeck.setPlayerTag(player.getPlayer_tag());
+        return deckRepository.save(userDeck);
+    }
+
+    public UserDeck getMain(User user){
+        return deckRepository.findByPlayerTagAndStatus(user.playerTag, true)
+                .orElseThrow(() -> new RuntimeException("нет такой деки"));
+    }
+
+    public UserDeck updateMain(Set<CardApi> cards, UserDeck userDeck){
+        Set<Card> cards1 = cards.stream().map(cardApi -> cardService.findByName(cardApi.getName())).collect(Collectors.toSet());
+        userDeck.setCards(cards1);
+        return deckRepository.save(userDeck);
+    }
+
 }

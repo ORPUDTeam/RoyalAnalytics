@@ -2,31 +2,54 @@ package org.example.royaleanalytics.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.royaleanalytics.dto.response.PlayerDto;
-import org.example.royaleanalytics.dto.response.RatingHistoryDto;
 import org.example.royaleanalytics.entity.User;
+import org.example.royaleanalytics.entity.UserCache;
+import org.example.royaleanalytics.entity.UserDeck;
+import org.example.royaleanalytics.mapper.UserCacheMapper;
+import org.example.royaleanalytics.mapper.UserMapper;
 import org.example.royaleanalytics.repository.UserRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.sql.Date;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UserCacheService userCacheService;
+    private final UserMapper userMapper;
+    private final UserCacheMapper userCacheMapper;
 
-    public PlayerDto getProfile(String name){
-        return null; //TODO
+
+    public PlayerDto getProfile(String name) {
+        User user = userRepository.findByUsername(name)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return getCreatedPlayer(user);
     }
 
-    public RatingHistoryDto getRatingHistory(Date startDate, Date endDate, String name){
-        return null; //TODO
+    public PlayerDto getPlayer(String playerTag) {
+        System.out.println("-------------------------");
+        System.out.println(playerTag);
+        return userRepository.findById(playerTag)
+                .map(this::getCreatedPlayer)
+                .orElseGet(() -> {
+                    UserCache userCache = userCacheService.getOrCreate(playerTag);
+                    return userCacheMapper.mapToPlayerDto(userCache);
+                });
     }
-
-    public PlayerDto getPlayer(String playerTag){
-        return null; //TODO
+    private PlayerDto getCreatedPlayer(User user) {
+        UserCache userCache = user.getUserCache();
+        return userMapper.mapToPlayerDto(user, userCache, userCache.getUserDeck());
+    }
+    public PlayerDto updateProfile(String name){
+        User user = userRepository.findByUsername(name)
+                .orElseThrow(() -> new RuntimeException("нет такого пользователя"));
+        UserCache userCache = userCacheService.forceUpdate(user.playerTag);
+        user.setUserCache(userCache);
+        return userMapper.mapToPlayerDto(userRepository.save(user), userCache, userCache.getUserDeck());
     }
 
     public User getUser(Authentication authentication){

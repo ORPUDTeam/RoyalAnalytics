@@ -1,6 +1,7 @@
 package org.example.royaleanalytics.client;
 
 
+import org.example.royaleanalytics.dto.api.CardsApi;
 import org.example.royaleanalytics.dto.api.Player;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
@@ -19,13 +20,12 @@ public interface ClashRoyaleApiClient {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             headers = {"Authorization=Bearer ${api.token}"}
     )
-    ResponseEntity<List<CardApi>> getCards();
+    ResponseEntity<CardsApi> getCards();
 
     @GetMapping(
-            value = "${api.users-path}" + "/{tag}",
+            value = "${api.users-path}/%23{tag}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             headers = {"Authorization=Bearer ${api.token}"}
     )
-    ResponseEntity<Player> getPlayerInfo(@PathVariable String tag);
-
+    ResponseEntity<Player> getPlayerInfo(@PathVariable("tag") String tag);
 }

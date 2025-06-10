@@ -1,12 +1,10 @@
 package org.example.royaleanalytics.entity;
 
-import com.vladmihalcea.hibernate.type.array.IntArrayType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-import org.hibernate.annotations.Type;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -23,15 +21,11 @@ public class UserDeck {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "player_tag", nullable = false)
-    private User user;
-
     @Column(name = "name", nullable = false)
     private String name;
 
     @Column(name = "status")
-    private boolean status;
+    private Boolean status;
 
 
     @ManyToMany
@@ -45,5 +39,8 @@ public class UserDeck {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "player_tag")
+    private String playerTag;
 
 }
