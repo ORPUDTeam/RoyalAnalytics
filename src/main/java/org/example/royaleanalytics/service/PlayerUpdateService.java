@@ -19,7 +19,9 @@ public class PlayerUpdateService {
     private final ApiService apiService;
 
     public UserCache updatePlayer(UserCache userCache, Player updatePlayer) {
-        ratingCacheService.create(userCache.getUser(), updatePlayer.getTrophies());
+        if(userCache.getUser()!=null) {
+            ratingCacheService.create(userCache.getUser(), updatePlayer.getTrophies());
+        }
         UserDeck userDeck = userCache.getUserDeck();
         userDeckService.updateMain(updatePlayer.getDeck(), userDeck);
         return userCacheRepository.save(userCacheMapper.mapToUserCache(userCache, updatePlayer));
