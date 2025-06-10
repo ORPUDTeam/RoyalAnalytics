@@ -12,8 +12,8 @@ CREATE TABLE cards
     image_url TEXT NOT NULL,
 
     CONSTRAINT cards_id_pk PRIMARY KEY (id),
-    CONSTRAINT cards_elixir_check CHECK (elixir >= 1 AND elixir <= 10),
-    CONSTRAINT cards_rarity_check CHECK (rarity IN ('Common', 'Rare', 'Epic', 'Legendary', 'Champion'))
+    CONSTRAINT cards_elixir_check CHECK (elixir >= 0 AND elixir <= 10),
+    CONSTRAINT cards_rarity_check CHECK (rarity IN ('common', 'rare', 'epic', 'legendary', 'champion'))
 
 );
 

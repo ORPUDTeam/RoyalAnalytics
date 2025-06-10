@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.royaleanalytics.client.ClashRoyaleApiClient;
 import org.example.royaleanalytics.dto.api.CardApi;
+import org.example.royaleanalytics.dto.api.CardsApi;
 import org.example.royaleanalytics.dto.api.Player;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.ResponseEntity;
@@ -34,10 +35,11 @@ public class ApiService {
 
     public List<CardApi> getCards() {
         try {
-            ResponseEntity<List<CardApi>> response = client.getCards();
-            return response.getBody();
+            ResponseEntity<CardsApi> response = client.getCards();
+            return response.getBody().getCards();
         } catch (Exception e) {
             log.error("Error getting cards from API", e.getMessage());
+            e.printStackTrace();
             return Collections.emptyList();
         }
     }

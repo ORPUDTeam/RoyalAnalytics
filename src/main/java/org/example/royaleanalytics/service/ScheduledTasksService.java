@@ -19,7 +19,7 @@ public class ScheduledTasksService {
     private final CardService cardService;
     private final UserCacheService userCacheService;
 
-    @Scheduled(cron = "0 0 0 1 * ?")
+    @Scheduled(fixedDelay = Long.MAX_VALUE)
     public void updateCards() {
         try {
             List<CardApi> cards = apiService.getCards();
