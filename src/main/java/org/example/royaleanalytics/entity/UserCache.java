@@ -33,9 +33,8 @@ public class UserCache {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @MapsId
-    @JoinColumn(name = "player_tag")
+    @OneToOne(fetch = FetchType.EAGER, optional = true)
+    @JoinColumn(name = "player_tag", referencedColumnName = "player_tag", insertable = false, updatable = false)
     private User user;
 
     @OneToOne(fetch = FetchType.EAGER)

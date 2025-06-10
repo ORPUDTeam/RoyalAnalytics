@@ -31,6 +31,8 @@ public class UserService {
     }
 
     public PlayerDto getPlayer(String playerTag) {
+        System.out.println("-------------------------");
+        System.out.println(playerTag);
         return userRepository.findById(playerTag)
                 .map(this::getCreatedPlayer)
                 .orElseGet(() -> {

@@ -37,9 +37,10 @@ public class PlayerUpdateService {
 
     public UserCache create(String tag) {
         Player player = apiService.getPlayer(tag);
-        UserCache userCache = userCacheRepository.save(userCacheMapper.mapToUserCache(player));
-        userCache.setUserDeck(userDeckService.createMain(player.getDeck(), userCache.getUser()));
-        userCache.setPlayer_tag(tag);
-        return userCache;
+        UserCache userCache = userCacheMapper.mapToUserCache(player);
+        userCache.setUserDeck(userDeckService.createMain(player, userCache.getUser()));
+        String normTag = tag.substring(1);
+        userCache.setPlayer_tag(normTag);
+        return userCacheRepository.save(userCache);
     }
 }

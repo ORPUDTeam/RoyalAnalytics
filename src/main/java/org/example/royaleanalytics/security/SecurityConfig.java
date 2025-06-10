@@ -19,28 +19,28 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(AbstractHttpConfigurer::disable)
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .defaultSuccessUrl("/profile")
-                        .permitAll()
-                )
-                .logout(Customizer.withDefaults())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/login",
-                                "/registration",
-                                "/players/*",
-                                "/tournaments",
-                                "/cards/*"
-                        ).permitAll()
-                        .requestMatchers("/admin").hasRole("ADMIN")
-                        .anyRequest().authenticated()
-                )
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
-                );
+//        http
+//                .csrf(AbstractHttpConfigurer::disable)
+//                .formLogin(form -> form
+//                        .loginPage("/login")
+//                        .defaultSuccessUrl("/profile")
+//                        .permitAll()
+//                )
+//                .logout(Customizer.withDefaults())
+//                .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers(
+//                                "/login",
+//                                "/registration",
+//                                "/players/*",
+//                                "/tournaments",
+//                                "/cards/*"
+//                        ).permitAll()
+//                        .requestMatchers("/admin").hasRole("ADMIN")
+//                        .anyRequest().authenticated()
+//                )
+//                .sessionManagement(session -> session
+//                        .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
+//                );
 
         return http.build();
     }

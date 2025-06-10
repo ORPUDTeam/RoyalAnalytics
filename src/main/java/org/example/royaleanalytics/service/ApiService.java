@@ -29,6 +29,7 @@ public class ApiService {
             return response.getBody();
         } catch (Exception e) {
             log.error("Error getting player info from API", e.getMessage());
+            e.printStackTrace();
         }
         return null;
     }

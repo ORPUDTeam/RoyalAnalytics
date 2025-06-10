@@ -18,7 +18,7 @@ public interface CardMapper {
 
     default Card updateCard(Card oldCart, CardApi cardApi){
         oldCart.setUpdated_at(LocalDateTime.now());
-        oldCart.setElixir(cardApi.getElixir());
+        oldCart.setElixir(cardApi.getElixir()!=null?cardApi.getElixir():0);
         oldCart.setRarity(cardApi.getRarity());
         oldCart.setImageUrl(cardApi.getIconUrls().getMediumUrl());
         return oldCart;

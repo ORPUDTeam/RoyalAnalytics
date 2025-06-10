@@ -32,9 +32,7 @@ public class User {
     @Column(insertable = false)
     public String role;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @MapsId
-    @JoinColumn(name = "playerTag")
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private UserCache userCache;
 
 

@@ -21,10 +21,6 @@ public class UserDeck {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "player_tag", nullable = false)
-    private User user;
-
     @Column(name = "name", nullable = false)
     private String name;
 
@@ -43,5 +39,8 @@ public class UserDeck {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "player_tag")
+    private String playerTag;
 
 }

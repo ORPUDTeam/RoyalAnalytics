@@ -3,6 +3,7 @@ package org.example.royaleanalytics.service;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.royaleanalytics.dto.api.CardApi;
+import org.example.royaleanalytics.dto.api.Player;
 import org.example.royaleanalytics.dto.response.UserDeckResponse;
 import org.example.royaleanalytics.dto.request.DeckCreateRequest;
 import org.example.royaleanalytics.entity.Card;
@@ -39,7 +40,7 @@ public class UserDeckService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         return deckRepository.findAll()
                 .stream()
-                .filter(deck -> deck.getUser().getUsername().equals(user.getUsername()))
+                .filter(deck -> deck.getPlayerTag().equals(user.playerTag))
                 .map(mapper::toResponse)
                 .toList();
     }
@@ -53,7 +54,7 @@ public class UserDeckService {
         userDeck.setStatus(false);
         User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        userDeck.setUser(user);
+        userDeck.setPlayerTag(user.playerTag);
         deckRepository.save(userDeck);
     }
 
@@ -62,7 +63,7 @@ public class UserDeckService {
                 .orElseThrow(() -> new UserDeckNotFoundException(deck_id));
         User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        if(deck.getUser().equals(user)) {
+        if(deck.getPlayerTag().equals(user.playerTag)) {
             throw new RuntimeException("нельзя изменять чужие колоды");
         }
         patching(deck, request);
@@ -81,13 +82,15 @@ public class UserDeckService {
         }
     }
 
-    public UserDeck createMain(Set<CardApi> deck1, User user){
-        Set<Card> deck = deck1.stream().map(cardApi -> cardService.findByName(cardApi.getName())).collect(Collectors.toSet());
-        return deckRepository.save(mapper.mapToUserDeck(deck, user));
+    public UserDeck createMain(Player player, User user){
+        Set<Card> deck = player.getDeck().stream().map(cardApi -> cardService.findByName(cardApi.getName())).collect(Collectors.toSet());
+        UserDeck userDeck = mapper.mapToUserDeck(deck, user, player.getPlayer_tag());
+        userDeck.setPlayerTag(player.getPlayer_tag());
+        return deckRepository.save(userDeck);
     }
 
     public UserDeck getMain(User user){
-        return deckRepository.findByUserAndStatus(user, true)
+        return deckRepository.findByPlayerTagAndStatus(user.playerTag, true)
                 .orElseThrow(() -> new RuntimeException("нет такой деки"));
     }
 

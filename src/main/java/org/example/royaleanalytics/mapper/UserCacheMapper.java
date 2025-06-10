@@ -24,6 +24,7 @@ public interface UserCacheMapper {
     @Mapping(target = "trophies", source = "player.trophies")
     @Mapping(target = "rewards", source = "player.rewards")
     @Mapping(target = "updatedAt", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "player_tag", ignore = true)
     UserCache mapToUserCache(Player player);
 
     default PlayerDto mapToPlayerDto(UserCache userCache){

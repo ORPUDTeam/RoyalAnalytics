@@ -32,7 +32,7 @@ public interface UserDeckMapper {
     @Mapping(target = "cards", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "status", ignore = true)
-    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "playerTag", ignore = true)
     UserDeck toUserDeck(DeckCreateRequest request);
 
 
@@ -40,5 +40,6 @@ public interface UserDeckMapper {
     @Mapping(target = "status", constant = "true")
     @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
     @Mapping(target = "name", constant = "default")
-    UserDeck mapToUserDeck(Set<Card> cards, User user);
+    @Mapping(target = "playerTag", source = "tag")
+    UserDeck mapToUserDeck(Set<Card> cards, User user, String tag);
 }
