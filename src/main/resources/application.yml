@@ -3,7 +3,7 @@ spring:
     name: RoyaleAnalytics
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/royale_analytics
+    url: jdbc:postgresql://main-db:5432/royal_analytics
     type: com.zaxxer.hikari.HikariDataSource
     username: postgres
     password: postgres

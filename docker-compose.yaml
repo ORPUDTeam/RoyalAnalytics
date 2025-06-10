@@ -1,0 +1,37 @@
+services:
+  main-postgres:
+    image: postgres:17
+    restart: always
+    environment:
+      POSTGRES_DB: royal-analytics
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    networks:
+      - internal
+    container_name: main-db
+    volumes:
+      - main_db:/var/lib/postgresql/data
+
+  ml-service:
+    build:
+      context: .
+      dockerfile: ml-service/Dockerfile
+    container_name: ml-service
+    networks:
+      - internal
+
+  main-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: main-service
+    ports:
+      - "8080:8080"
+    networks:
+      - internal
+
+networks:
+  internal:
+
+volumes:
+  main-db:

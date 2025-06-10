@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(
         name = "deckRecommendationClient",
-        url = "http://localhost:8000"
+        url = "http://ml-service:8000"
 )
 public interface GeneratedDeckClient {
     @PostMapping(
