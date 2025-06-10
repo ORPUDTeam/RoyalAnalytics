@@ -27,7 +27,6 @@ public class CardController {
         CardFilter filter = new CardFilter();
         filter.setRarity(rarity);
         filter.setElixir(elixir);
-        filter.setArena(arena);
         List<CardResponse> cards = cardService.getAll(filter);
         return ResponseEntity.ok(cards);
     }
